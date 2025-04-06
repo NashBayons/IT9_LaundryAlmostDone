@@ -1,0 +1,64 @@
+<?php
+
+use App\Http\Controllers\Admin\EmployeeController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InventoryController;  // Added this line
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::middleware('auth')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Order routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::resource('orders', OrderController::class);
+
+    // Transaction 
+    Route::resource('transactions', TransactionController::class);
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group( function() {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::resource('employees', EmployeeController::class)
+        ->names([
+            'index' => 'admin.employee.index',
+            'create' => 'admin.employee.create',
+            'store' => 'admin.employee.store',
+            'show' => 'admin.employee.show',
+            'edit' => 'admin.employee.edit',
+            'update' => 'admin.employee.update',
+            'destroy' => 'admin.employee.destroy',
+        ]);
+        
+    // Fixed inventory route - added proper controller reference and names
+    Route::resource('inventory', InventoryController::class)
+        ->names([
+            'index' => 'admin.inventory.index',
+            'create' => 'admin.inventory.create',
+            'store' => 'admin.inventory.store',
+            'show' => 'admin.inventory.show',
+            'edit' => 'admin.inventory.edit',
+            'update' => 'admin.inventory.update',
+            'destroy' => 'admin.inventory.destroy',
+        ]);
+});
+
+require __DIR__.'/auth.php';
