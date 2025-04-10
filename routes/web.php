@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\InventoryController;  // Added this line
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::middleware('auth')->group(function () {
     // Dashboard
@@ -59,6 +59,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             'update' => 'admin.inventory.update',
             'destroy' => 'admin.inventory.destroy',
         ]);
+
+
 });
+
+Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])
+->name('track.order');
 
 require __DIR__.'/auth.php';

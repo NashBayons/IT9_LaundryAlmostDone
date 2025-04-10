@@ -532,6 +532,62 @@
             width: 0%;
             transition: width 0.5s;
         }
+        .order-lookup-container {
+        max-width: 600px;
+        margin: 0 auto 30px;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+        margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0689ba;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
     </style>
 </head>
 <body>
@@ -621,45 +677,30 @@
             </div>
         </div>
     </section>
-     <section class="view-laundry" id="view-laundry">
+    <section class="view-laundry" id="view-laundry">
         <div class="section-container">
-            <h2 class="section-title">View Laundry Status</h2>
-            <table class="laundry-table">
-                <thead>
-                    <tr>
-                        <th>Customer ID</th>
-                        <th>Name</th>
-                        <th>Order Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#1001</td>
-                        <td>John Doe</td>
-                        <td>2023-10-15</td>
-                        <td><span class="status-badge status-washing" onclick="showStatusModal('washing')">Washing</span></td>
-                    </tr>
-                    <tr>
-                        <td>#1002</td>
-                        <td>Jane Smith</td>
-                        <td>2023-10-16</td>
-                        <td><span class="status-badge status-ironing" onclick="showStatusModal('ironing')">Ironing</span></td>
-                    </tr>
-                    <tr>
-                        <td>#1003</td>
-                        <td>Michael Johnson</td>
-                        <td>2023-10-17</td>
-                        <td><span class="status-badge status-done" onclick="showStatusModal('done')">Done</span></td>
-                    </tr>
-                    <tr>
-                        <td>#1004</td>
-                        <td>Sarah Williams</td>
-                        <td>2023-10-18</td>
-                        <td><span class="status-badge status-pending" onclick="showStatusModal('pending')">Pending</span></td>
-                    </tr>
-                </tbody>
-            </table>
+            <h2 class="section-title">Track Your Order</h2>
+            
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+            
+            <div class="order-lookup-container">
+                <form action="{{ route('track.order') }}" method="GET">
+                    <div class="form-group">
+                        <label for="order_id">Order ID / Receipt Number</label>
+                        <input type="text" name="order_id" id="order_id" class="form-control" 
+                            placeholder="Enter your order ID or receipt number" 
+                            value="{{ request('order_id') }}" required>
+                        <button type="submit" class="btn btn-primary">Track Order</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Keep your existing table for demonstration purposes or remove it -->
+            <!-- It shows what will appear for admins, but customer tracking will be separate -->
         </div>
     </section>
 
