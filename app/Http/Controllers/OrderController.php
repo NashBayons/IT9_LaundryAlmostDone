@@ -20,7 +20,7 @@ class OrderController extends Controller
             'order_name' => 'required|string|max:255',
             'weight' => 'required|numeric',
             'date' => 'required|date',
-            'service_type' => 'required|string',
+            'service_type' => 'required|array',
             'payment_method' => 'required|string',
             'amount' => 'required|numeric',
         ]);
@@ -30,7 +30,7 @@ class OrderController extends Controller
             'order_name' => $request->order_name,
             'weight' => $request->weight,
             'date' => $request->date,
-            'service_type' => $request->service_type,
+            'service_type' => json_encode($request->service_type),
             'status' => 'Pending', // Default status
             'payment_method' => $request->payment_method,
             'amount' => $request->amount,

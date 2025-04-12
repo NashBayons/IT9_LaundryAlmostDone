@@ -30,7 +30,7 @@ class OrderTrackingController extends Controller
         // Get the progress percentage based on status
         $statusProgress = $this->calculateStatusProgress($order->status);
 
-        return view('order.track', compact('order', 'statusProgress'));
+        return view('orders.track', compact('order', 'statusProgress'));
     }
 
     /**
