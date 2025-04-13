@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Admin\EmployeeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;  // Added this line
 
@@ -47,6 +48,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             'update' => 'admin.employee.update',
             'destroy' => 'admin.employee.destroy',
         ]);
+
+    Route::resource('suppliers', SupplierController::class)
+    ->names([
+        'index' => 'admin.suppliers.index',
+        'create' => 'admin.suppliers.create',
+        'store' => 'admin.suppliers.store',
+        'show' => 'admin.suppliers.show',
+        'edit' => 'admin.suppliers.edit',
+        'update' => 'admin.suppliers.update',
+       'destroy' => 'admin.suppliers.destroy',
+    ]);    
         
     // Fixed inventory route - added proper controller reference and names
     Route::resource('inventory', InventoryController::class)
@@ -61,7 +73,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ]);
 
 
+
 });
+
+// Route::prefix('admin')->middleware(['auth'])->group(function(){
+//     Route::resource('supplier', SupplierController::class);
+// });
 
 Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])
 ->name('track.order');

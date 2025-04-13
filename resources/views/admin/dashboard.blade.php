@@ -14,6 +14,7 @@
         <div class="top-nav">
             <h1>Administrator</h1>
             <div class="nav-links">
+                <a href="{{ route('admin.suppliers.index') }}">Suppliers</a>
                 <a href="#">Order Track</a>
                 <a href="{{ route('admin.employee.index') }}">Employee Assignment</a>
                 <a href="#">Sales Report</a>
