@@ -152,6 +152,8 @@
       <nav class="nav flex-column">
         <a class="nav-link" href="{{ route('transactions.index') }}">Order/ Transaction</a>
         <a class="nav-link" href="{{ route('orders.index') }}">View Laundry</a>
+        <a class="nav-link" href="{{ route('orders.index') }}">Suppliers</a>
+        <a class="nav-link" href="{{ route('orders.index') }}">Items</a>
       </nav>
       <div class="log-out" onclick="logout()">Log Out</div>
     </div>

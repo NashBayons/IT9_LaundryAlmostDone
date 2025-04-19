@@ -38,8 +38,8 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:employees,email',
             'phone' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:255',
-            'hire_date' => 'nullable|date',
-            'status' => 'required|in:active,inactive'
+            'hire_date' => 'nullable|date'
+            // 'status' => 'required|in:active,inactive'
         ]);
 
         $employee = Employee::create($validated);

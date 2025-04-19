@@ -7,7 +7,10 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\InventoryController;  // Added this line
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Employee\Supplier_Controller;
+use App\Http\Controllers\Employee\Items_Controller;  // Added this line
+use App\Http\Controllers\Controller;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     // Transaction 
     Route::resource('transactions', TransactionController::class);
+
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group( function() {
@@ -70,10 +74,30 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             'edit' => 'admin.inventory.edit',
             'update' => 'admin.inventory.update',
             'destroy' => 'admin.inventory.destroy',
-        ]);
+        ]);    
+    
+});
 
-
-
+Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(function () {
+    Route::resource('supplier', Supplier_Controller::class)->names([
+        'index' => 'supplier.index',
+        'create' => 'supplier.create',
+        'store' => 'supplier.store',
+        'show' => 'supplier.show',
+        'edit' => 'supplier.edit',
+        'update' => 'supplier.update',
+        'destroy' => 'supplier.destroy',
+    ]);
+    
+    Route::resource('inventoryitem', Items_Controller::class)->names([
+        'index' => 'items.index',
+        'create' => 'items.create',
+        'store' => 'items.store',
+        'show' => 'items.show',
+        'edit' => 'items.edit',
+        'update' => 'items.update',
+        'destroy' => 'items.destroy',
+    ]);
 });
 
 // Route::prefix('admin')->middleware(['auth'])->group(function(){
