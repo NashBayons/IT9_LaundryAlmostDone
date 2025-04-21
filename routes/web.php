@@ -1,16 +1,17 @@
 <?php
 
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Employee\Supplier_Controller;
 use App\Http\Controllers\Employee\Items_Controller;  // Added this line
-use App\Http\Controllers\Controller;
 
 Route::get('/', function () {
     return view('welcome');
@@ -98,11 +99,10 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
         'update' => 'items.update',
         'destroy' => 'items.destroy',
     ]);
-});
 
-// Route::prefix('admin')->middleware(['auth'])->group(function(){
-//     Route::resource('supplier', SupplierController::class);
-// });
+    Route::get('/stock/in', [StockController::class, 'stockInForm'])->name('stock-in.form');
+    Route::post('/stock/in', [StockController::class, 'stockIn'])->name('stock-in');
+});
 
 Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])
 ->name('track.order');
