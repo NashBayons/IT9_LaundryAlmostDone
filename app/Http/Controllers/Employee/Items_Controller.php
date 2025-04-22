@@ -24,7 +24,7 @@ class Items_Controller extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:0',
+            // 'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
         ]);
@@ -48,7 +48,7 @@ class Items_Controller extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255', 
-            'quantity' => 'required|integer|min:0',
+            // 'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
         ]);

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Employee\Supplier_Controller;
+use App\Http\Controllers\Inventory\PurchaseOrderController;
 use App\Http\Controllers\Employee\Items_Controller;  // Added this line
 
 Route::get('/', function () {
@@ -102,6 +103,13 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
 
     Route::get('/stock/in', [StockController::class, 'stockInForm'])->name('stock-in.form');
     Route::post('/stock/in', [StockController::class, 'stockIn'])->name('stock-in');
+    Route::get('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderForm'])->name('employee.stock-in.from-po');
+    Route::post('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderSubmit'])->name('employee.stock-in.from-po.submit');
+
+    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
+    Route::get('/purchase-orders/create', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase-orders.show');
 });
 
 Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])

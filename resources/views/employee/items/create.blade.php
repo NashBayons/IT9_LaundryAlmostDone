@@ -36,14 +36,14 @@
             @enderror
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label for="quantity">Quantity</label>
             <input type="number" class="form-control @error('quantity') is-invalid @enderror" 
                    id="quantity" name="quantity" min="0" value="{{ old('quantity', 0) }}" required>
             @error('quantity')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-        </div>
+        </div> -->
 
         <div class="form-group">
             <label for="price">Price ($)</label>

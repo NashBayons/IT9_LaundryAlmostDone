@@ -1,48 +1,67 @@
 @extends('layouts.employee-layout')
 
 @section('content')
-    <div class="container">
-        <h2>Stock In</h2>
+<div class="container">
+    <h2>Stock In from Purchase Order</h2>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
+    {{-- Select Purchase Order --}}
+    <form method="GET" action="{{ route('employee.stock-in.form') }}" class="mb-4">
+        <div class="form-group">
+            <label for="purchase_order_id">Select Purchase Order</label>
+            <select name="purchase_order_id" id="purchase_order_id" class="form-control" required onchange="this.form.submit()">
+                <option value="">-- Choose Purchase Order --</option>
+                @foreach($purchaseOrders as $order)
+                    <option value="{{ $order->id }}" {{ request('purchase_order_id') == $order->id ? 'selected' : '' }}>
+                        Order #{{ $order->order_number }} | {{ $order->supplier->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </form>
 
-        <form action="{{ route('employee.stock-in') }}" method="POST">
+    @if($purchaseOrders->isNotEmpty())
+        <form method="POST" action="{{ route('employee.stock-in.from-po.submit', $purchaseOrder->id) }}">
             @csrf
-            <div class="form-group">
-                <label for="item_id">Item</label>
-                <select name="item_id" id="item_id" class="form-control">
-                    @foreach($items as $item)
-                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Ordered Quantity</th>
+                        <th>Already Stocked In</th>
+                        <th>Stock In Now</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($purchaseOrder->items as $poItem)
+                        @php
+                            $remaining = $poItem->quantity - $poItem->stocked_in_quantity;
+                        @endphp
+                        <tr>
+                            <td>{{ $poItem->inventoryItem->name }}</td>
+                            <td>{{ $poItem->quantity }}</td>
+                            <td>{{ $poItem->stocked_in_quantity }}</td>
+                            <td>
+                                <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $poItem->id }}">
+                                <input type="number" name="items[{{ $loop->index }}][quantity]" class="form-control" min="0" max="{{ $remaining }}" value="0">
+                            </td>
+                            <td>{{ number_format($poItem->price, 2) }}</td>
+                        </tr>
                     @endforeach
-                </select>
-            </div>
+                </tbody>
+            </table>
 
-            <div class="form-group">
-                <label for="supplier_id">Supplier</label>
-                <select name="supplier_id" id="supplier_id" class="form-control">
-                    @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="quantity">Quantity</label>
-                <input type="number" name="quantity" id="quantity" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-                <label for="price">Price</label>
-                <input type="number" name="price" id="price" class="form-control" step="0.01" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Stock In Items</button>
         </form>
-    </div>
+    @endif
+</div>
 @endsection

@@ -40,7 +40,7 @@
         <div class="form-group">
             <label for="quantity">Quantity</label>
             <input type="number" class="form-control @error('quantity') is-invalid @enderror" 
-                   id="quantity" name="quantity" min="0" value="{{ old('quantity', $inventoryitem->quantity) }}" required>
+                   id="quantity" name="quantity" min="0" value="{{ old('quantity', $inventoryitem->quantity) }}" readonly>
             @error('quantity')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
