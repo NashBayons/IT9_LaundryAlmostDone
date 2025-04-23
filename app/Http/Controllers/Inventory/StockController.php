@@ -13,14 +13,20 @@ use App\Http\Controllers\Controller;
 
 class StockController extends Controller
 {
-    public function stockInForm()
+    public function stockInForm(Request $request)
     {
         $items = InventoryItem::all();  // Get all inventory items
         $suppliers = supplier::all();  // Get all suppliers
 
-        $purchaseOrders = collect(); // empty collection
-        $purchaseOrder = null;
-        return view('employee.stock.stock_in', compact('items', 'suppliers', 'purchaseOrders', 'purchaseOrder'));
+        $purchaseOrders = PurchaseOrder::with('supplier')->where('status', '!=', 'complete')->get();
+        $selectedOrder = null;
+
+        if ($request->has('purchase_order_id')) {
+            $selectedOrder = PurchaseOrder::with(['supplier', 'items.inventoryItem'])
+                                ->find($request->purchase_order_id);
+        }
+    
+        return view('employee.stock.stock_in', compact('items', 'suppliers', 'purchaseOrders', 'selectedOrder'));
     }
 
     public function stockIn(Request $request)
@@ -83,7 +89,7 @@ class StockController extends Controller
 
     public function stockInFromPurchaseOrderForm(Request $request)
     {
-        $purchaseOrders = PurchaseOrder::with('supplier')->where('status', '!=', 'completed')->get();
+        $purchaseOrders = PurchaseOrder::with('supplier')->where('status', ['pending', 'approved', 'received'])->get();
 
         $selectedOrder = null;
         if ($request->purchase_order_id) {
@@ -120,6 +126,10 @@ class StockController extends Controller
                 $stockLevel->quantity += $quantityToStockIn;
                 $stockLevel->save();
 
+                $item = InventoryItem::findOrFail($poItem->item_id);
+                $item->quantity += $quantityToStockIn;
+                $item->save();
+
                 // Create Stock Transaction
                 StockTransaction::create([
                     'item_id' => $poItem->item_id,
@@ -140,12 +150,12 @@ class StockController extends Controller
             });
 
             if ($allStockedIn) {
-                $purchaseOrder->status = 'complete';
+                $purchaseOrder->status = 'received';
                 $purchaseOrder->save();
             }
 
             \DB::commit();
-            return redirect()->route('employee.purchase-orders.index')->with('success', 'Stock-in completed.');
+            return redirect()->route('employee.stock-in.form')->with('success', 'Stock-in completed.');
         } catch (\Exception $e) {
             \DB::rollBack();
             return back()->with('error', 'Something went wrong: ' . $e->getMessage());
