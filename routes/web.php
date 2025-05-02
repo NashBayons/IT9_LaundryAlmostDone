@@ -101,18 +101,18 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
         'destroy' => 'items.destroy',
     ]);
 
-    // Route::get('/employee/stock-in', [StockController::class, 'stockInForm'])->name('employee.stock-in.form');
-    // Route::post('/employee/stock-in/from-purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderSubmit'])->name('employee.stock-in.purchase-order.submit');
-
     Route::get('/stock/in', [StockController::class, 'stockInForm'])->name('stock-in.form');
     Route::post('/stock/in', [StockController::class, 'stockIn'])->name('stock-in');
     Route::get('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderForm'])->name('stock-in.from-po');
     Route::post('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderSubmit'])->name('stock-in.from-po.submit');
 
-    // Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
     Route::get('/purchase-orders/create', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
     Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
     Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase-orders.show');
+
+    Route::get('/stock-out', [StockController::class, 'stockOutForm'])->name('stock-out.form');
+    Route::post('/stock-out', [StockController::class, 'stockOutSubmit'])->name('stock-out');
+
 });
 
 Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])

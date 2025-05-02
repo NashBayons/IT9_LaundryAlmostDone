@@ -42,7 +42,11 @@
                                     <td>{{ $inventoryitem->name }}</td>
                                     <td>{{ $inventoryitem->category }}</td>
                                     <td>{{ $inventoryitem->quantity }}</td>
-                                    <td>${{ number_format($inventoryitem->price, 2) }}</td>
+                                    <td>@if($inventoryitem->latest_price)
+                                            ${{ number_format($inventoryitem->latest_price, 2) }}
+                                        @else
+                                    <span class="text-muted">N/A</span>@endif
+                                </td>
                                     <td>
                                         <span class="badge 
                                             @if($inventoryitem->status == 'In Stock') badge-success

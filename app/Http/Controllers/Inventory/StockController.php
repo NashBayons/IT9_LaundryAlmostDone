@@ -161,4 +161,50 @@ class StockController extends Controller
             return back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
+    public function stockOutForm()
+    {
+        $items = InventoryItem::all();
+        return view('employee.stock.stock_out', compact('items'));
+    }
+
+    public function stockOutSubmit(Request $request)
+    {
+        $request->validate([
+            'item_id' => 'required|exists:inventory_items,id',
+            'quantity' => 'required|integer|min:1',
+            'reason' => 'required|string|max:255',
+        ]);
+
+        \DB::beginTransaction();
+        try {
+            $item = InventoryItem::findOrFail($request->item_id);
+            $stockLevel = StockLevel::where('item_id', $item->id)->first();
+
+            if (!$stockLevel || $stockLevel->quantity < $request->quantity) {
+                throw new \Exception("Insufficient stock.");
+            }
+
+            $stockLevel->quantity -= $request->quantity;
+            $item->quantity -= $request->quantity;
+            $stockLevel->save();
+            $item->save();
+
+            StockTransaction::create([
+                'item_id' => $item->id,
+                'supplier_id' => null,
+                'transaction_type' => 'stock_out',
+                'quantity' => $request->quantity,
+                'price' => null,
+                'reason' => $request->reason,
+            ]);
+
+            \DB::commit();
+            return redirect()->route('employee.stock-out.form')->with('success', 'Stock-out successful.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
 }
