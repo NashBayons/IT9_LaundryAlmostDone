@@ -36,23 +36,15 @@
             @enderror
         </div>
 
-        <!-- <div class="form-group">
-            <label for="quantity">Quantity</label>
-            <input type="number" class="form-control @error('quantity') is-invalid @enderror" 
-                   id="quantity" name="quantity" min="0" value="{{ old('quantity', 0) }}" required>
-            @error('quantity')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div> -->
 
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label for="price">Price ($)</label>
             <input type="number" class="form-control @error('price') is-invalid @enderror" 
                    id="price" name="price" min="0" step="0.01" value="{{ old('price', 0) }}" required>
             @error('price')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-        </div>
+        </div> -->
 
         <div class="form-group">
             <label for="status">Status</label>

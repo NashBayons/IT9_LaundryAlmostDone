@@ -136,7 +136,7 @@ class StockController extends Controller
                     'supplier_id' => $purchaseOrder->supplier_id,
                     'transaction_type' => 'stock_in',
                     'quantity' => $quantityToStockIn,
-                    'price' => $poItem->price,
+                    'price' => $poItem->unit_price,
                 ]);
 
                 // Update the purchase order item

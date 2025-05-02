@@ -36,12 +36,18 @@ class PurchaseOrderController extends Controller
             $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
             $orderNumber = 'PO-' . $nextId;
 
+            $totalPrice = 0;
+            foreach ($request->items as $item) {
+                $totalPrice += $item['price'] * $item['quantity'];
+            }
+
             // Create the Purchase Order
             $purchaseOrder = PurchaseOrder::create([
                 'supplier_id' => $request->supplier_id,
                 'order_number' => $orderNumber,
                 'order_date' => now(),
                 'status' => 'pending', // Set a default status for now
+                'total_price' => $totalPrice,
             ]);
 
             // Loop through the items and create PurchaseOrderItems

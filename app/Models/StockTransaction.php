@@ -15,6 +15,7 @@ class StockTransaction extends Model
         'transaction_type',
         'quantity',
         'price',
+        'reason',
     ];
 
     public function item()
