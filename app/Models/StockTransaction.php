@@ -20,7 +20,7 @@ class StockTransaction extends Model
 
     public function item()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(InventoryItem::class);
     }
 
     public function supplier()

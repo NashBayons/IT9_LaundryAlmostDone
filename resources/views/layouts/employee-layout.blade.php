@@ -72,9 +72,9 @@
         <a class="nav-link" href="{{ route('orders.index') }}">View Laundry</a>
         <a class="nav-link" href="{{ route('employee.supplier.index') }}">Supplier</a>
         <a class="nav-link" href="{{ route('employee.items.index') }}">Items</a>
-        <a class="nav-link" href="{{ route('employee.stock-in.form') }}">Stock In</a>
-        <a class="nav-link" href="{{ route('employee.stock-out.form') }}">Stock Out</a>
-        <a class="nav-link" href="{{ route('employee.purchase-orders.create') }}">Purhcase Order</a>
+        <a class="nav-link" href="{{ route('employee.stock_in_index') }}">Stock In</a>
+        <a class="nav-link" href="{{ route('employee.stock_out_index') }}">Stock Out</a>
+        <a class="nav-link" href="{{ route('employee.receive-orders.index') }}">Recieve Order</a>
       </nav>
       <div class="log-out">Log Out</div>
     </div>

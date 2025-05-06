@@ -2,20 +2,33 @@
 
 namespace App\Http\Controllers\Inventory;
 
-use App\Models\supplier;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use App\Models\InventoryItem;
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderItem;
+use App\Models\ReceiveOrder;
+use App\Models\ReceiveOrderItem;
 use App\Http\Controllers\Controller;
 
-class PurchaseOrderController extends Controller
+class ReceiveOrderController extends Controller
 {
+    public function index()
+    {
+        $receiveOrders = ReceiveOrder::with('supplier')->latest()->paginate(10);
+        return view('employee.ReceiveOrder.index', compact('receiveOrders'));
+    }
+
+    public function show($id)
+    {
+        $receiveOrder = ReceiveOrder::with(['supplier', 'items.inventoryItem'])->findOrFail($id);
+
+        return view('employee.ReceiveOrder.show', compact('receiveOrder'));
+    }
+    
     public function create()
     {
-        $suppliers = supplier::all();
+        $suppliers = Supplier::all();
         $items = InventoryItem::all();
-        return view('employee.stock.PurchcaseOrder', compact('suppliers', 'items'));
+        return view('employee.ReceiveOrder.ReceiveOrder', compact('suppliers', 'items'));
     }
 
     public function store(Request $request)
@@ -28,21 +41,21 @@ class PurchaseOrderController extends Controller
             'items.*.price' => 'required|numeric|min:0',
         ]);
 
-        // Start a database transaction to ensure both Purchase Order and Items are saved together
+        // Start a database transaction to ensure both Receive Order and Items are saved together
         \DB::beginTransaction();
 
         try {
-            $lastOrder = PurchaseOrder::latest()->first();
+            $lastOrder = ReceiveOrder::latest()->first();
             $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
-            $orderNumber = 'PO-' . $nextId;
+            $orderNumber = 'RO-' . $nextId; // Changed prefix to 'RO' for Receive Order
 
             $totalPrice = 0;
             foreach ($request->items as $item) {
                 $totalPrice += $item['price'] * $item['quantity'];
             }
 
-            // Create the Purchase Order
-            $purchaseOrder = PurchaseOrder::create([
+            // Create the Receive Order
+            $receiveOrder = ReceiveOrder::create([
                 'supplier_id' => $request->supplier_id,
                 'order_number' => $orderNumber,
                 'order_date' => now(),
@@ -50,10 +63,10 @@ class PurchaseOrderController extends Controller
                 'total_price' => $totalPrice,
             ]);
 
-            // Loop through the items and create PurchaseOrderItems
+            // Loop through the items and create ReceiveOrderItems
             foreach ($request->items as $item) {
-                PurchaseOrderItem::create([
-                    'purchase_order_id' => $purchaseOrder->id,
+                ReceiveOrderItem::create([
+                    'receive_order_id' => $receiveOrder->id,
                     'item_id' => $item['item_id'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['price'],
@@ -64,14 +77,12 @@ class PurchaseOrderController extends Controller
             \DB::commit();
 
             // Redirect back with a success message
-            return redirect()->route('employee.purchase-orders.create')->with('success', 'Purchase Order created successfully!');
+            return redirect()->route('employee.receive-orders.create')->with('success', 'Receive Order created successfully!');
         } catch (\Exception $e) {
             // Rollback if there is an error
             \DB::rollBack();
-            return redirect()->route('employee.purchase-orders.create')
+            return redirect()->route('employee.receive-orders.create')
                      ->with('error', 'Error: ' . $e->getMessage());
         }
     }
-
-
 }

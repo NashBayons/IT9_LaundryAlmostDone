@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Employee\Supplier_Controller;
-use App\Http\Controllers\Inventory\PurchaseOrderController;
+use App\Http\Controllers\Inventory\ReceiveOrderController;
 use App\Http\Controllers\Employee\Items_Controller;  // Added this line
 
 Route::get('/', function () {
@@ -103,16 +103,24 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
 
     Route::get('/stock/in', [StockController::class, 'stockInForm'])->name('stock-in.form');
     Route::post('/stock/in', [StockController::class, 'stockIn'])->name('stock-in');
-    Route::get('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderForm'])->name('stock-in.from-po');
-    Route::post('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromPurchaseOrderSubmit'])->name('stock-in.from-po.submit');
+    Route::get('/stock-in', [StockController::class, 'index'])->name('stock_in_index');
+    Route::get('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromReceiveOrderForm'])->name('stock-in.from-ro');
+    Route::post('/stock-in/purchase-order/{id}', [StockController::class, 'stockInFromReceiveOrderSubmit'])->name('stock-in.from-ro.submit');
 
-    Route::get('/purchase-orders/create', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
-    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
-    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase-orders.show');
 
-    Route::get('/stock-out', [StockController::class, 'stockOutForm'])->name('stock-out.form');
+    Route::resource('receive-orders', ReceiveOrderController::class)->names([
+        'index' => 'receive-orders.index',
+        'create' => 'receive-orders.create',
+        'store' => 'receive-orders.store',
+        'show' => 'receive-orders.show',
+        'edit' => 'receive-orders.edit',
+        'update' => 'receive-orders.update',
+        'destroy' => 'receive-orders.destroy',
+    ]);
+
+    Route::get('/stock-out/create', [StockController::class, 'stockOutForm'])->name('stock-out.form');
     Route::post('/stock-out', [StockController::class, 'stockOutSubmit'])->name('stock-out');
-
+    Route::get('/stock-out', [StockController::class, 'stockOutIndex'])->name('stock_out_index');
 });
 
 Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'trackOrder'])

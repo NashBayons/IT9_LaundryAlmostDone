@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PurchaseOrder extends Model
+class ReceiveOrder extends Model
 {
     protected $fillable = 
-    ['supplier_id', 'order_number', 'status', 'total_price'];
+    ['supplier_id', 
+    'order_number', 
+    'status', 
+    'total_price'];
 
     public function supplier()
     {
@@ -16,6 +19,6 @@ class PurchaseOrder extends Model
 
     public function items()
     {
-        return $this->hasMany(PurchaseOrderItem::class);
+        return $this->hasMany(ReceiveOrderItem::class);
     }
 }

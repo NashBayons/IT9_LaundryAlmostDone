@@ -6,27 +6,49 @@ use App\Models\supplier;
 use App\Models\StockLevel;
 use Illuminate\Http\Request;
 use App\Models\InventoryItem;
-use App\Models\PurchaseOrder;
+use App\Models\ReceiveOrder;
 use App\Models\StockTransaction;
-use App\Models\PurchaseOrderItem;
+use App\Models\ReceiveOrderItem;
 use App\Http\Controllers\Controller;
 
 class StockController extends Controller
 {
+    
+    public function index()
+    {
+        $stockIns = StockTransaction::with(['item', 'supplier'])
+            ->where('transaction_type', 'stock_in')
+            ->latest()
+            ->paginate(10);
+
+        return view('employee.stock.stock_in_index', compact('stockIns'));
+    }
+    
+    public function stockOutIndex()
+    {
+        $stockOuts = StockTransaction::with('item')
+            ->where('transaction_type', 'stock_out')
+            ->latest()
+            ->paginate(10);
+
+        return view('employee.stock.stock_out_index', compact('stockOuts'));
+    }
+
+
     public function stockInForm(Request $request)
     {
         $items = InventoryItem::all();  // Get all inventory items
         $suppliers = supplier::all();  // Get all suppliers
 
-        $purchaseOrders = PurchaseOrder::with('supplier')->where('status', '!=', 'complete')->get();
+        $receiveOrders = ReceiveOrder::with('supplier')->where('status', '!=', 'complete')->get();
         $selectedOrder = null;
 
-        if ($request->has('purchase_order_id')) {
-            $selectedOrder = PurchaseOrder::with(['supplier', 'items.inventoryItem'])
-                                ->find($request->purchase_order_id);
+        if ($request->has('receive_order_id')) {
+            $selectedOrder = ReceiveOrder::with(['supplier', 'items.inventoryItem'])
+                                ->find($request->receive_order_id);
         }
     
-        return view('employee.stock.stock_in', compact('items', 'suppliers', 'purchaseOrders', 'selectedOrder'));
+        return view('employee.stock.stock_in', compact('items', 'suppliers', 'receiveOrders', 'selectedOrder'));
     }
 
     public function stockIn(Request $request)
@@ -38,11 +60,9 @@ class StockController extends Controller
             'price' => 'required|numeric|min:0',
         ]);
 
-        // Start a database transaction to handle multiple operations
         \DB::beginTransaction();
 
         try {
-            // Create a stock transaction record
             $stockTransaction = StockTransaction::create([
                 'item_id' => $request->item_id,
                 'supplier_id' => $request->supplier_id,
@@ -51,14 +71,11 @@ class StockController extends Controller
                 'price' => $request->price,
             ]);
 
-            // Update the stock level
             $stockLevel = StockLevel::where('item_id', $request->item_id)->first();
 
             if ($stockLevel) {
-                // If stock level exists, update it
                 $stockLevel->quantity += $request->quantity;
             } else {
-                // If no stock level exists, create it
                 $stockLevel = StockLevel::create([
                     'item_id' => $request->item_id,
                     'quantity' => $request->quantity,
@@ -70,88 +87,81 @@ class StockController extends Controller
             if ($item) {
                 $item->quantity += $request->quantity;
             } else {
-                // This case should never happen unless data is corrupted
                 throw new \Exception("Inventory item not found.");
             }
 
             $stockLevel->save();
             $item->save();
-            // Commit the transaction
+
             \DB::commit();
 
             return redirect()->route('employee.stock-in.form')->with('success', 'Stock-in successful!');
         } catch (\Exception $e) {
-            // Rollback if there is an error
             \DB::rollBack();
             return redirect()->route('stock-in.form')->with('error', 'An error occurred. Please try again.');
         }
     }
 
-    public function stockInFromPurchaseOrderForm(Request $request)
+    public function stockInFromReceiveOrderForm(Request $request)
     {
-        $purchaseOrders = PurchaseOrder::with('supplier')->where('status', ['pending', 'approved', 'received'])->get();
+        $receiveOrders = ReceiveOrder::with('supplier')->whereIn('status', ['pending', 'approved', 'received'])->get();
 
         $selectedOrder = null;
-        if ($request->purchase_order_id) {
-            $selectedOrder = PurchaseOrder::with(['supplier', 'items.inventoryItem'])
-                                ->findOrFail($request->purchase_order_id);
+        if ($request->receive_order_id) {
+            $selectedOrder = ReceiveOrder::with(['supplier', 'items.inventoryItem'])
+                                ->findOrFail($request->receive_order_id);
         }
 
         return view('employee.stock.stock_in', [
-            'purchaseOrders' => $purchaseOrders,
-            'purchaseOrder' => $selectedOrder
+            'receiveOrders' => $receiveOrders,
+            'receiveOrder' => $selectedOrder
         ]);
     }
 
-
-    public function stockInFromPurchaseOrderSubmit(Request $request, $purchaseOrderId)
+    public function stockInFromReceiveOrderSubmit(Request $request, $receiveOrderId)
     {
         $request->validate([
             'items' => 'required|array',
-            'items.*.id' => 'required|exists:purchase_order_items,id',
+            'items.*.id' => 'required|exists:receive_order_items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
         \DB::beginTransaction();
 
         try {
-            $purchaseOrder = PurchaseOrder::findOrFail($purchaseOrderId);
+            $receiveOrder = ReceiveOrder::findOrFail($receiveOrderId);
 
             foreach ($request->items as $itemData) {
-                $poItem = PurchaseOrderItem::findOrFail($itemData['id']);
+                $roItem = ReceiveOrderItem::findOrFail($itemData['id']);
                 $quantityToStockIn = (int) $itemData['quantity'];
 
-                // Update Stock Level
-                $stockLevel = StockLevel::firstOrNew(['item_id' => $poItem->item_id]);
+                $stockLevel = StockLevel::firstOrNew(['item_id' => $roItem->item_id]);
                 $stockLevel->quantity += $quantityToStockIn;
                 $stockLevel->save();
 
-                $item = InventoryItem::findOrFail($poItem->item_id);
+                $item = InventoryItem::findOrFail($roItem->item_id);
                 $item->quantity += $quantityToStockIn;
                 $item->save();
 
-                // Create Stock Transaction
                 StockTransaction::create([
-                    'item_id' => $poItem->item_id,
-                    'supplier_id' => $purchaseOrder->supplier_id,
+                    'item_id' => $roItem->item_id,
+                    'supplier_id' => $receiveOrder->supplier_id,
                     'transaction_type' => 'stock_in',
                     'quantity' => $quantityToStockIn,
-                    'price' => $poItem->unit_price,
+                    'price' => $roItem->unit_price,
                 ]);
 
-                // Update the purchase order item
-                $poItem->stocked_in_quantity += $quantityToStockIn;
-                $poItem->save();
+                $roItem->stocked_in_quantity += $quantityToStockIn;
+                $roItem->save();
             }
 
-            // Check if all items are fully stocked in
-            $allStockedIn = $purchaseOrder->items->every(function ($item) {
+            $allStockedIn = $receiveOrder->items->every(function ($item) {
                 return $item->stocked_in_quantity >= $item->quantity;
             });
 
             if ($allStockedIn) {
-                $purchaseOrder->status = 'received';
-                $purchaseOrder->save();
+                $receiveOrder->status = 'received';
+                $receiveOrder->save();
             }
 
             \DB::commit();
@@ -206,5 +216,4 @@ class StockController extends Controller
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
-
 }

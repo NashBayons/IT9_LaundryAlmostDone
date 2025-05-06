@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h2>Stock In from Purchase Order</h2>
+    <h2>Stock In from Receive Order</h2>
 
     {{-- Flash Messages --}}
     @if(session('success'))
@@ -12,25 +12,25 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    @if($purchaseOrders->isNotEmpty())
+    @if($receiveOrders->isNotEmpty())
     <form method="GET" action="{{ route('employee.stock-in.form') }}">
         <div class="form-group">
-            <label for="purchase_order_id">Select Purchase Order</label>
-            <select name="purchase_order_id" onchange="this.form.submit()" class="form-control">
+            <label for="receive_order_id">Select Receive Order</label>
+            <select name="receive_order_id" onchange="this.form.submit()" class="form-control">
                 <option value="">-- Select --</option>
-                @foreach($purchaseOrders as $po)
-                    <option value="{{ $po->id }}" {{ request('purchase_order_id') == $po->id ? 'selected' : '' }}>
-                        Order #{{ $po->order_number }} ({{ $po->supplier->name }})
+                @foreach($receiveOrders as $ro)
+                    <option value="{{ $ro->id }}" {{ request('receive_order_id') == $ro->id ? 'selected' : '' }}>
+                        Order #{{ $ro->order_number }} ({{ $ro->supplier->name }})
                     </option>
                 @endforeach
             </select>
         </div>
     </form>
-@endif
+    @endif
 
-@if($selectedOrder)
-    {{-- Display items from selected purchase order --}}
-    <form action="{{ route('employee.stock-in.from-po.submit', $selectedOrder->id) }}" method="POST">
+    @if($selectedOrder)
+    {{-- Display items from selected receive order --}}
+    <form action="{{ route('employee.stock-in.from-ro.submit', $selectedOrder->id) }}" method="POST">
         @csrf
         <table class="table">
             <thead>
@@ -43,19 +43,19 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($selectedOrder->items as $poItem)
+                @foreach($selectedOrder->items as $roItem)
                     @php
-                        $remaining = $poItem->quantity - $poItem->stocked_in_quantity;
+                        $remaining = $roItem->quantity - $roItem->stocked_in_quantity;
                     @endphp
                     @if($remaining > 0)
                     <tr>
-                        <td>{{ $poItem->inventoryItem->name }}</td>
-                        <td>{{ $poItem->quantity }}</td>
-                        <td>{{ $poItem->stocked_in_quantity }}</td>
+                        <td>{{ $roItem->inventoryItem->name }}</td>
+                        <td>{{ $roItem->quantity }}</td>
+                        <td>{{ $roItem->stocked_in_quantity }}</td>
                         <td>{{ $remaining }}</td>
                         <td>
-                            <input type="number" name="items[{{ $poItem->id }}][quantity]" class="form-control" max="{{ $remaining }}" min="1" required>
-                            <input type="hidden" name="items[{{ $poItem->id }}][id]" value="{{ $poItem->id }}">
+                            <input type="number" name="items[{{ $roItem->id }}][quantity]" class="form-control" max="{{ $remaining }}" min="1" required>
+                            <input type="hidden" name="items[{{ $roItem->id }}][id]" value="{{ $roItem->id }}">
                         </td>
                     </tr>
                     @endif
@@ -64,5 +64,6 @@
         </table>
         <button type="submit" class="btn btn-primary">Stock In Selected Items</button>
     </form>
-@endif
+    @endif
+</div>
 @endsection

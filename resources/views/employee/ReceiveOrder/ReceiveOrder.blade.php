@@ -12,7 +12,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <form action="{{ route('employee.purchase-orders.store') }}" method="POST">
+    <form action="{{ route('employee.receive-orders.store') }}" method="POST">
         @csrf
 
         <div class="form-group">

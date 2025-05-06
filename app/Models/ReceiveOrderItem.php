@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PurchaseOrderItem extends Model
+class ReceiveOrderItem extends Model
 {
     protected $fillable = 
-    ['purchase_order_id', 'item_id', 'quantity', 'unit_price', 'status'];
+    ['receive_order_id', 'item_id', 'quantity', 'unit_price', 'status'];
 
     public function purchaseOrder()
     {
