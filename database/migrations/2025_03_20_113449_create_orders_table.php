@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('status')->default('Pending');
             $table->string('payment_method');
             $table->decimal('amount', 8, 2);
+            $table->text('special_instructions')->nullable();
+            $table->string('payment_status')->default('pending');
+            $table->boolean('is_archived')->default(false);
             $table->timestamps();
         });
     }

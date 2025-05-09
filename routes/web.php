@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Inventory\StockController;
+use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Employee\Supplier_Controller;
 use App\Http\Controllers\Inventory\ReceiveOrderController;
 use App\Http\Controllers\Employee\Items_Controller;  // Added this line
@@ -30,9 +31,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Order routes
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::resource('orders', OrderController::class);
+    Route::prefix('orders')->name('orders.')->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('index');
+    Route::post('/', [OrderController::class, 'store'])->name('store');
+    Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+    Route::post('/{order}/update-status', [OrderController::class, 'updateStatus'])->name('update-status');
+    Route::put('/{order}/mark-paid', [OrderController::class, 'markAsPaid'])->name('mark-paid');
+    Route::put('/{order}/archive', [OrderController::class, 'archiveOrder'])->name('archive');
+    Route::put('/{order}/unarchive', [OrderController::class, 'unarchiveOrder'])->name('unarchive');
+    });
 
     // Transaction 
     Route::resource('transactions', TransactionController::class);
@@ -77,6 +84,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             'update' => 'admin.inventory.update',
             'destroy' => 'admin.inventory.destroy',
         ]);    
+
+    Route::prefix('sales_report')->name('admin.sales_report.')->group(function () {
+    Route::get('/', [SalesReportController::class, 'index'])->name('index');
+    Route::post('/generate', [SalesReportController::class, 'generate'])->name('generate');
+    Route::post('/export/excel', [SalesReportController::class, 'exportExcel'])->name('export.excel');
+    Route::post('/export/pdf', [SalesReportController::class, 'exportPDF'])->name('export.pdf');
+        });
     
 });
 

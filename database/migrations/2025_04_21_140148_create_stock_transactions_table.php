@@ -21,6 +21,7 @@ return new class extends Migration
                 ->constrained('suppliers')
                 ->onDelete('set null');  // If a supplier is deleted, set supplier_id to null
             $table->enum('transaction_type', ['stock_in', 'stock_out']);
+            $table->string('reason')->nullable();
             $table->integer('quantity');
             $table->decimal('price', 8, 2)->nullable();
             $table->timestamps();

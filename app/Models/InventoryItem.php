@@ -15,7 +15,6 @@ class InventoryItem extends Model
         'name',
         'category',
         'quantity',
-        'price',
         'status'
     ];
 

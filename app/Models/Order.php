@@ -16,6 +16,9 @@ class Order extends Model
         'service_type',
         'status',
         'payment_method',
+        'payment_status',
         'amount',
+        'special_instructions',
+        'is_archived'
     ];
 }

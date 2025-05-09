@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('category');
             $table->integer('quantity')->default(0);
-            $table->decimal('price', 8, 2)->default(0);
             $table->string('status')->default('In Stock');
             $table->timestamps();
         });

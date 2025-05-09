@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Order Tracking - FreshFold Laundry Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,66 +38,108 @@
             background-color: #17a2b8;
             font-size: 0.9rem;
         }
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            padding: 15px 0;
-        }
-        
-        .nav-container {
+        /* Status Timeline */
+        .status-timeline {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            margin: 30px 0;
+            position: relative;
         }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-            text-decoration: none;
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 1;
         }
-        
-        .nav-links {
+        .status-step {
             display: flex;
-            gap: 25px;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            width: 16%;
         }
-        
-        .nav-links a {
-            color: var(--text-color);
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: white;
+        }
+        .status-icon.active {
+            background: #4CAF50;
+        }
+        .status-label {
+            font-size: 12px;
+            text-align: center;
+            color: #757575;
+        }
+        .status-label.active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-timestamp {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+            text-align: center;
+            min-height: 15px;
+        }
+        .status-timestamp.active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 4px;
+            background: #4CAF50;
+            z-index: 2;
+            transition: width 0.3s ease;
+        }
+        .btn-primary {
+            background: #079CD6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
+            display: inline-block;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            background: #067ba8;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
         }
         
-        .nav-links a:hover {
-            color: var(--primary-color);
+        .button-container a {
+            margin: 0 10px;
+        }
+        
+        .status-timestamp.inactive {
+            color: #aaa;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="{{ url('/') }}" class="logo">FreshFold</a>
-            <div class="nav-links">
-                <a href="{{ url('/#home') }}">Home</a>
-                <a href="{{ url('/#about') }}">About</a>
-                <a href="{{ url('/#guides') }}">Guides</a>
-                <a href="{{ url('/#services') }}">Services</a>
-                <a href="{{ url('/#view-laundry') }}">View Laundry</a>
-                <a href="{{ url('/#contact') }}">Contact</a>
-            </div>
-        </div>
-    </nav>
-
     <div class="container">
         <h1>Order Tracking</h1>
 
@@ -106,17 +149,122 @@
             <p><span class="label">Service Type:</span> {{ $order->service_type }}</p>
             <p><span class="label">Payment Method:</span> {{ $order->payment_method }}</p>
             <p><span class="label">Amount:</span> ${{ number_format($order->amount, 2) }}</p>
-            <p><span class="label">Order Date:</span> {{ \Carbon\Carbon::parse($order->date)->format('M d, Y') }}</p>
-            <p><span class="label">Status:</span> <span class="badge">{{ ucfirst($order->status) }}</span></p>
+            <p><span class="label">Order Date:</span> {{ \Carbon\Carbon::parse($order->created_at)->format('M d, Y h:i A') }}</p>
+            <p><span class="label">Current Status:</span> <span class="badge">{{ ucfirst($order->status) }}</span></p>
         </div>
 
-        <div style="text-align:center;">
-            <a href="{{ route('orders.index') }}" style="text-decoration:none; background:#079CD6; color:white; padding:10px 20px; border-radius:5px;">Back to Orders</a>
+        <div class="status-timeline">
+        <div class="progress-bar" style="width: 
+            @if($order->status == 'Pending') 0%
+            @elseif($order->status == 'Washing') 20%
+            @elseif($order->status == 'Drying') 40%
+            @elseif($order->status == 'Ironing') 60%
+            @elseif($order->status == 'Ready') 80%
+            @elseif($order->status == 'Completed') 100%
+            @endif">
+        </div>
+        
+        <!-- Received - Always shows creation time -->
+        <div class="status-step">
+            <div class="status-icon active">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="status-label active">Received</span>
+            <div class="status-timestamp active">
+                {{ \Carbon\Carbon::parse($order->created_at)->format('h:i A') }}
+            </div>
+        </div>
+        
+        <div class="status-step">
+            <div class="status-icon @if(in_array($order->status, ['Washing', 'Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">
+                <i class="fas fa-soap"></i>
+            </div>
+            <span class="status-label @if(in_array($order->status, ['Washing', 'Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">Washing</span>
+            <div class="status-timestamp @if(in_array($order->status, ['Washing', 'Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">
+                @if($order->status == 'Washing' || $order->washing_started_at)
+                    {{ \Carbon\Carbon::parse($order->washing_started_at ?? now())->format('h:i A') }}
+                @endif
+            </div>
+        </div>
+        
+        <div class="status-step">
+            <div class="status-icon @if(in_array($order->status, ['Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">
+                <i class="fas fa-wind"></i>
+            </div>
+            <span class="status-label @if(in_array($order->status, ['Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">Drying</span>
+            <div class="status-timestamp @if(in_array($order->status, ['Drying', 'Ironing', 'Ready', 'Completed'])) active @endif">
+                @if($order->status == 'Drying' || $order->drying_started_at)
+                    {{ \Carbon\Carbon::parse($order->drying_started_at ?? now())->format('h:i A') }}
+                @endif
+            </div>
+        </div>
+        
+        <div class="status-step">
+            <div class="status-icon @if(in_array($order->status, ['Ironing', 'Ready', 'Completed'])) active @endif">
+                <i class="fas fa-tshirt"></i>
+            </div>
+            <span class="status-label @if(in_array($order->status, ['Ironing', 'Ready', 'Completed'])) active @endif">Ironing</span>
+            <div class="status-timestamp @if(in_array($order->status, ['Ironing', 'Ready', 'Completed'])) active @endif">
+                @if($order->status == 'Ironing' || $order->ironing_started_at)
+                    {{ \Carbon\Carbon::parse($order->ironing_started_at ?? now())->format('h:i A') }}
+                @endif
+            </div>
+        </div>
+        
+        <div class="status-step">
+            <div class="status-icon @if(in_array($order->status, ['Ready', 'Completed'])) active @endif">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <span class="status-label @if(in_array($order->status, ['Ready', 'Completed'])) active @endif">Ready</span>
+            <div class="status-timestamp @if(in_array($order->status, ['Ready', 'Completed'])) active @endif">
+                @if($order->status == 'Ready' || $order->ready_at)
+                    {{ \Carbon\Carbon::parse($order->ready_at ?? now())->format('h:i A') }}
+                @endif
+            </div>
+        </div>
+        
+        <div class="status-step">
+            <div class="status-icon @if($order->status == 'Completed') active @endif">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <span class="status-label @if($order->status == 'Completed') active @endif">Completed</span>
+            <div class="status-timestamp @if($order->status == 'Completed') active @endif">
+                @if($order->status == 'Completed')
+                    {{ \Carbon\Carbon::parse($order->completed_at ?? now())->format('h:i A') }}
+                @endif
+            </div>
+        </div>
+        <div class="button-container">
+            <a href="{{ route('welcome') }}" class="btn-primary">
+                <i class="fas fa-home"></i> Back to Dashboard
+            </a>
         </div>
     </div>
+    </div>
 
-    <footer>
-        <p>&copy; 2023 FreshFold Laundry Service. All rights reserved.</p>
-    </footer>
+    <script>
+    function updateOrderStatus(selectElement) {
+        const orderId = selectElement.dataset.orderId;
+        const newStatus = selectElement.value;
+        
+        fetch(`/orders/${orderId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                status: newStatus,
+                timestamp: new Date().toISOString()
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+    </script>
 </body>
 </html>

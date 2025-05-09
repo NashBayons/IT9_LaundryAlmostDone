@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('unit_price', 8, 2);
             $table->enum('status', ['pending', 'received'])->default('pending');
+            $table->integer('stocked_in_quantity')->default(0);
             $table->timestamps();
         });
     }
