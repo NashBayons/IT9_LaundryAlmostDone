@@ -264,7 +264,7 @@
       padding: 8px 15px;
       font-weight: 500;
       transition: all 0.3s ease;
-      border: none;
+      CLEARborder: none;
       cursor: pointer;
     }
     
@@ -376,7 +376,13 @@
             <div class="order-details">
               <div class="detail-row">
                 <span class="detail-label">Service Type:</span>
-                <span class="detail-value">{{ $order->service_type }}</span>
+                <span class="detail-value">
+                @if(is_array($order->service_type))
+                    {{ implode(', ', $order->service_type) }}
+                @else
+                    {{ $order->service_type }} <!-- If it's not an array, just output the string -->
+                @endif
+                </span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Weight:</span>
@@ -451,7 +457,13 @@
                 <div class="order-details">
                   <div class="detail-row">
                     <span class="detail-label">Service Type:</span>
-                    <span class="detail-value">{{ $order->service_type }}</span>
+                    <span class="detail-value">
+                        @if(is_array($order->service_type))
+                            {{ implode(', ', $order->service_type) }}
+                        @else
+                            {{ $order->service_type }}  <!-- Or handle the case where it's not an array -->
+                        @endif
+                    </span>
                   </div>
                   <div class="detail-row">
                     <span class="detail-label">Amount:</span>
@@ -467,7 +479,7 @@
                     </span>
                   </span>
                   <span>
-                    Payment: 
+                    Payment  Payment: 
                     <span class="payment-status payment-paid">
                       Paid
                     </span>
@@ -500,7 +512,6 @@
           </button>
         </div>
         <div class="modal-body" id="orderDetailsContent">
-    
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -517,20 +528,29 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
   <script>
-    function viewOrderDetails(orderId) {
-      $.get('/orders/' + orderId, function(data) {
+  function viewOrderDetails(orderId) {
+    $.ajax({
+      url: '/orders/' + orderId,
+      method: 'GET',
+      success: function(data) {
         $('#modalOrderId').text(data.id);
+        const statusLogs = Array.isArray(data.status_logs) ? data.status_logs : [];
+        const formattedDate = data.date ? new Date(data.date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }) : 'N/A';
         $('#orderDetailsContent').html(`
           <div class="row">
             <div class="col-md-6">
-              <p><strong>Customer Name:</strong> ${data.order_name}</p>
-              <p><strong>Order Date:</strong> ${data.date}</p>
-              <p><strong>Weight:</strong> ${data.weight} kg</p>
+              <p><strong>Customer Name:</strong> ${data.order_name || 'N/A'}</p>
+              <p><strong>Order Date:</strong> ${formattedDate}</p>
+              <p><strong>Weight:</strong> ${data.weight ? data.weight + ' kg' : 'N/A'}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Status:</strong> 
-                <span class="order-status status-${data.status.toLowerCase().replace(' ', '-')}">
-                  ${data.status}
+                <span class="order-status status-${data.status ? data.status.toLowerCase().replace(' ', '-') : 'unknown'}">
+                  ${data.status || 'Unknown'}
                 </span>
               </p>
               <p><strong>Payment:</strong> 
@@ -538,130 +558,164 @@
                   ${data.payment_status || 'Pending'}
                 </span>
               </p>
-              <p><strong>Amount:</strong> $${parseFloat(data.amount).toFixed(2)}</p>
+              <p><strong>Amount:</strong> $${data.amount ? parseFloat(data.amount).toFixed(2) : '0.00'}</p>
             </div>
           </div>
           <div class="row mt-3">
             <div class="col-md-6">
-              <p><strong>Service Type:</strong> ${data.service_type}</p>
-              <p><strong>Payment Method:</strong> ${data.payment_method}</p>
+              <p><strong>Service Type:</strong> ${data.service_type && Array.isArray(data.service_type) && data.service_type.length > 0 ? data.service_type.join(', ') : 'N/A'}</p>
+              <p><strong>Payment Method:</strong> ${data.payment_method || 'N/A'}</p>
             </div>
             <div class="col-md-6">
               <p><strong>Special Instructions:</strong> ${data.special_instructions || 'None'}</p>
             </div>
           </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <h5>Status History</h5>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Changed At</th>
+                    <th>Changed By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${statusLogs.length > 0 ? statusLogs.map(log => `
+                    <tr>
+                      <td>${log.status || 'N/A'}</td>
+                      <td>${log.changed_at ? new Date(log.changed_at).toLocaleString() : 'N/A'}</td>
+                      <td>${log.user && log.user.name ? log.user.name : 'N/A'}</td>
+                    </tr>
+                  `).join('') : `
+                    <tr>
+                      <td colspan="3">No status history available</td>
+                    </tr>
+                  `}
+                </tbody>
+              </table>
+            </div>
+          </div>
         `);
         $('#orderDetailsModal').modal('show');
-      });
-    }
+      },
+      error: function(xhr) {
+        console.error('Error fetching order details:', xhr.responseJSON);
+        let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Failed to load order details.';
+        alert('Error: ' + errorMessage);
+      }
+    });
+  }
 
-    function updateOrderStatus(selectElement) {
-      const orderId = selectElement.dataset.orderId;
-      const newStatus = selectElement.value;
-      
-      $.ajax({
-        url: '/orders/' + orderId + '/update-status',
-        method: 'POST',
-        data: {
-          _token: '{{ csrf_token() }}',
-          status: newStatus
-        },
-        success: function(response) {
-          const card = selectElement.closest('.order-card');
-          const badge = card.querySelector('.order-status');
-          
-          badge.className = 'order-status';
-          badge.classList.add('status-' + newStatus.toLowerCase().replace(' ', '-'));
-          badge.textContent = newStatus;
-          
-          alert('Status updated successfully!');
-          
-          if (newStatus === 'Completed') {
-            location.reload();
-          }
-        },
-        error: function(xhr) {
-          alert('Error updating status: ' + xhr.responseJSON.message);
+  function updateOrderStatus(selectElement) {
+    const orderId = selectElement.dataset.orderId;
+    const newStatus = selectElement.value;
+    
+    $.ajax({
+      url: '/orders/' + orderId + '/status',
+      method: 'PUT',
+      data: {
+        _token: '{{ csrf_token() }}',
+        status: newStatus
+      },
+      success: function(response) {
+        const card = selectElement.closest('.order-card');
+        const badge = card.querySelector('.order-status');
+        
+        badge.className = 'order-status';
+        badge.classList.add('status-' + newStatus.toLowerCase().replace(' ', '-'));
+        badge.textContent = newStatus;
+        
+        alert(response.success);
+        
+        if (newStatus === 'Completed') {
+          location.reload();
         }
-      });
-    }
+      },
+      error: function(xhr) {
+        console.error('Error response:', xhr.responseJSON);
+        let errorMessage = 'An error occurred while updating the status.';
+        if (xhr.responseJSON) {
+          if (xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+          } else if (xhr.responseJSON.error) {
+            errorMessage = xhr.responseJSON.error;
+          } else if (xhr.responseJSON.errors) {
+            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+          }
+        }
+        alert('Error updating status: ' + errorMessage);
+      }
+    });
+  }
 
-    function markAsPaid(orderId) {
+  function markAsPaid(orderId) {
     if (!confirm('Mark this order as paid? This will also archive the order if it is completed.')) return;
     
     $.ajax({
-        url: '/orders/' + orderId + '/mark-paid',
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            _method: 'PUT'
-        },
-        success: function(response) {
-            location.reload(); // Reload to reflect changes
-        },
-        error: function(xhr) {
-            alert('Error: ' + xhr.responseJSON.message);
-        }
+      url: '/orders/' + orderId + '/mark-paid',
+      method: 'PUT',
+      data: {
+        _token: '{{ csrf_token() }}'
+      },
+      success: function(response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function(xhr) {
+        console.error('Error response:', xhr.responseJSON);
+        let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'An error occurred.';
+        alert('Error: ' + errorMessage);
+      }
     });
-}
+  }
 
-function archiveOrder(orderId) {
+  function archiveOrder(orderId) {
     if (!confirm('Archive this order?')) return;
     
     $.ajax({
-        url: '/orders/' + orderId + '/archive',
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            _method: 'PUT'
-        },
-        success: function(response) {
-            location.reload(); // Reload to reflect changes
-        },
-        error: function(xhr) {
-            alert('Error: ' + xhr.responseJSON.message);
-        }
+      url: '/orders/' + orderId + '/archive',
+      method: 'PUT',
+      data: {
+        _token: '{{ csrf_token() }}'
+      },
+      success: function(response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function(xhr) {
+        console.error('Error response:', xhr.responseJSON);
+        let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'An error occurred.';
+        alert('Error: ' + errorMessage);
+      }
     });
-}
-    function archiveOrder(orderId) {
-      if (!confirm('Archive this order?')) return;
-      
-      $.ajax({
-        url: '/orders/' + orderId + '/archive',
-        method: 'POST',
-        data: {
-          _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-          location.reload(); // Reload to reflect changes
-        },
-        error: function(xhr) {
-          alert('Error: ' + xhr.responseJSON.message);
-        }
-      });
-    }
+  }
 
-    function unarchiveOrder(orderId) {
-      if (!confirm('Restore this order from archive?')) return;
-      
-      $.ajax({
-        url: '/orders/' + orderId + '/unarchive',
-        method: 'POST',
-        data: {
-          _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-          location.reload(); // Reload to reflect changes
-        },
-        error: function(xhr) {
-          alert('Error: ' + xhr.responseJSON.message);
-        }
-      });
-    }
+  function unarchiveOrder(orderId) {
+    if (!confirm('Restore this order from archive?')) return;
+    
+    $.ajax({
+      url: '/orders/' + orderId + '/unarchive',
+      method: 'PUT',
+      data: {
+        _token: '{{ csrf_token() }}'
+      },
+      success: function(response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function(xhr) {
+        console.error('Error response:', xhr.responseJSON);
+        let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'An error occurred.';
+        alert('Error: ' + errorMessage);
+      }
+    });
+  }
 
-    function printReceipt() {
-      alert('Receipt printing functionality would be implemented here');
-    }
-  </script>
+  function printReceipt() {
+    alert('Receipt printing functionality would be implemented here');
+  }
+</script>
 </body>
 </html>

@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Order extends Model
 {
@@ -21,4 +22,30 @@ class Order extends Model
         'special_instructions',
         'is_archived'
     ];
+
+    protected $casts = [
+        'service_type' => 'array',
+        'date' => 'datetime',
+    ];
+
+    // Relationship to status logs
+    public function statusLogs()
+    {
+        return $this->hasMany(OrderStatusLog::class);
+    }
+
+    // Method to update status and log the change
+    public function updateStatus(string $newStatus, ?int $userId = null)
+    {
+        // Log the status change
+        $this->statusLogs()->create([
+            'status' => $newStatus,
+            'changed_at' => now(),
+            'user_id' => $userId ?? Auth::id(),
+        ]);
+
+        // Update the current status
+        $this->status = $newStatus;
+        $this->save();
+    }
 }

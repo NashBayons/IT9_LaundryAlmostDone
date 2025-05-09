@@ -32,14 +32,16 @@ Route::middleware('auth')->group(function () {
 
     // Order routes
     Route::prefix('orders')->name('orders.')->group(function () {
-    Route::get('/', [OrderController::class, 'index'])->name('index');
-    Route::post('/', [OrderController::class, 'store'])->name('store');
-    Route::get('/{order}', [OrderController::class, 'show'])->name('show');
-    Route::post('/{order}/update-status', [OrderController::class, 'updateStatus'])->name('update-status');
-    Route::put('/{order}/mark-paid', [OrderController::class, 'markAsPaid'])->name('mark-paid');
-    Route::put('/{order}/archive', [OrderController::class, 'archiveOrder'])->name('archive');
-    Route::put('/{order}/unarchive', [OrderController::class, 'unarchiveOrder'])->name('unarchive');
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->name('status.update');
+        Route::put('/{order}/mark-paid', [OrderController::class, 'markAsPaid'])->name('mark-paid');
+        Route::put('/{order}/archive', [OrderController::class, 'archiveOrder'])->name('archive');
+        Route::put('/{order}/unarchive', [OrderController::class, 'unarchiveOrder'])->name('unarchive');
+        Route::get('/orders/{id}/tracking', [OrderController::class, 'tracking'])->name('tracking');
     });
+    
 
     // Transaction 
     Route::resource('transactions', TransactionController::class);

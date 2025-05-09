@@ -47,6 +47,8 @@ class OrderController extends Controller
             'special_instructions' => $validated['special_instructions'] ?? null,
             'is_archived' => false,
         ]);
+        $order->save();
+        $order->updateStatus('Pending'); // Log initial status
 
         $receiptContent = $this->generateReceiptContent($order);
         
@@ -63,8 +65,7 @@ class OrderController extends Controller
         ]);
         
         $order = Order::findOrFail($id);
-        $order->status = $request->status;
-        $order->save();
+        $order->updateStatus($request->status);
 
         return response()->json(['success' => 'Order status updated successfully!']);
     }
@@ -114,13 +115,22 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::findOrFail($id);
-        return response()->json($order);
+        try {
+            $order = Order::with('statusLogs.user')->findOrFail($id);
+            return response()->json($order);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve order: ' . $e->getMessage()], 404);
+        }
     }
 
     protected function generateReceiptContent(Order $order)
     {
-        $services = implode(', ', json_decode($order->service_type));
+        if (is_array($order->service_type)) {
+            $services = implode(', ', $order->service_type);
+        } else {
+            // If it's not an array, just use it as a string or handle it differently
+            $services = $order->service_type;
+        }
         
         $receipt = "================================\n";
         $receipt .= "        LAUNDRY RECEIPT         \n";
