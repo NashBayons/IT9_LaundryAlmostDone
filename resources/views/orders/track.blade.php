@@ -147,13 +147,20 @@
                 @if(is_array($order->service_type))
                     {{ implode(', ', $order->service_type) }}
                 @else
-                    {{ $order->service_type }} <!-- Or handle the case where it's not an array -->
+                    {{ $order->service_type }}
                 @endif
             </p>
             <p><span class="label">Payment Method:</span> {{ $order->payment_method }}</p>
             <p><span class="label">Amount:</span> ${{ number_format($order->amount, 2) }}</p>
             <p><span class="label">Order Date:</span> {{ \Carbon\Carbon::parse($order->created_at)->format('M d, Y h:i A') }}</p>
             <p><span class="label">Current Status:</span> <span class="badge">{{ ucfirst($order->status) }}</span></p>
+            <p><span class="label">Assigned Employees:</span> 
+                @if($order->employees->isNotEmpty())
+                    {{ $order->employees->map(fn($employee) => $employee->getFullName() . ' (' . ($employee->position ?? 'N/A') . ')')->implode(', ') }}
+                @else
+                    None
+                @endif
+            </p>
         </div>
 
         <div class="status-timeline">

@@ -16,7 +16,8 @@ class Employee extends Model
         'phone', 
         'position', 
         'hire_date', 
-        'status'
+        'status',
+        'user_id'
     ];
     //
 
@@ -25,5 +26,15 @@ class Employee extends Model
     public function getFullName()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'employee_assignments', 'employee_id', 'order_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

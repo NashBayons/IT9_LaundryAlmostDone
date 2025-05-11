@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/{order}/archive', [OrderController::class, 'archiveOrder'])->name('archive');
         Route::put('/{order}/unarchive', [OrderController::class, 'unarchiveOrder'])->name('unarchive');
         Route::get('/orders/{id}/tracking', [OrderController::class, 'tracking'])->name('tracking');
+        Route::get('/{order}/assign', [OrderController::class, 'showAssignForm'])->name('assign.form');
+        Route::post('/{order}/assign', [OrderController::class, 'assignEmployees'])->name('assign');
     });
     
 

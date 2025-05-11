@@ -365,78 +365,81 @@
       
       <div class="order-cards-container">
         @foreach ($activeOrders as $order)
-          <div class="order-card">
-            <div class="order-card-header">
-              <span class="order-id">Order #{{ $order->id }}</span>
-              <span class="order-date">{{ $order->date }}</span>
-            </div>
-            
-            <div class="order-customer">{{ $order->order_name }}</div>
-            
-            <div class="order-details">
-              <div class="detail-row">
-                <span class="detail-label">Service Type:</span>
-                <span class="detail-value">
-                @if(is_array($order->service_type))
-                    {{ implode(', ', $order->service_type) }}
-                @else
-                    {{ $order->service_type }} <!-- If it's not an array, just output the string -->
-                @endif
-                </span>
+              <div class="order-card">
+                  <div class="order-card-header">
+                      <span class="order-id">Order #{{ $order->id }}</span>
+                      <span class="order-date">{{ $order->date }}</span>
+                  </div>
+                  
+                  <div class="order-customer">{{ $order->order_name }}</div>
+                  
+                  <div class="order-details">
+                      <div class="detail-row">
+                          <span class="detail-label">Service Type:</span>
+                          <span class="detail-value">
+                              @if(is_array($order->service_type))
+                                  {{ implode(', ', $order->service_type) }}
+                              @else
+                                  {{ $order->service_type }}
+                              @endif
+                          </span>
+                      </div>
+                      <div class="detail-row">
+                          <span class="detail-label">Weight:</span>
+                          <span class="detail-value">{{ $order->weight }} kg</span>
+                      </div>
+                      <div class="detail-row">
+                          <span class="detail-label">Payment Method:</span>
+                          <span class="detail-value">{{ $order->payment_method }}</span>
+                      </div>
+                  </div>
+                  
+                  <div class="order-amount">${{ number_format($order->amount, 2) }}</div>
+                  
+                  <div class="detail-row">
+                      <span>
+                          Status: 
+                          <span class="order-status status-{{ strtolower(str_replace(' ', '-', $order->status)) }}">
+                              {{ $order->status }}
+                          </span>
+                      </span>
+                      <span>
+                          Payment: 
+                          <span class="payment-status payment-{{ $order->payment_status ?? 'pending' }}">
+                              {{ $order->payment_status ?? 'Pending' }}
+                          </span>
+                      </span>
+                  </div>
+                  
+                  <select class="status-select" data-order-id="{{ $order->id }}" onchange="updateOrderStatus(this)">
+                      <option value="Pending" {{ $order->status == 'Pending' ? 'selected' : '' }}>Pending</option>
+                      <option value="Washing" {{ $order->status == 'Washing' ? 'selected' : '' }}>Washing</option>
+                      <option value="Drying" {{ $order->status == 'Drying' ? 'selected' : '' }}>Drying</option>
+                      <option value="Ironing" {{ $order->status == 'Ironing' ? 'selected' : '' }}>Ironing</option>
+                      <option value="Ready" {{ $order->status == 'Ready' ? 'selected' : '' }}>Ready for Pickup</option>
+                      <option value="Completed" {{ $order->status == 'Completed' ? 'selected' : '' }}>Completed</option>
+                  </select>
+                  
+                  <div class="order-actions">
+                      <button class="btn-action btn-view" onclick="viewOrderDetails({{ $order->id }})">
+                          <i class="fas fa-eye"></i> View
+                      </button>
+                      <a href="{{ route('orders.assign.form', $order->id) }}" class="btn-action btn-update">
+                          <i class="fas fa-user-plus"></i> Assign
+                      </a>
+                      @if($order->status == 'Completed' && ($order->payment_status ?? 'pending') == 'paid')
+                          <button class="btn-action btn-archive" onclick="archiveOrder({{ $order->id }})">
+                              <i class="fas fa-archive"></i> Archive
+                          </button>
+                      @else
+                          <button class="btn-action btn-mark-paid" onclick="markAsPaid({{ $order->id }})" 
+                              {{ ($order->payment_status ?? 'pending') == 'paid' ? 'disabled' : '' }}>
+                              <i class="fas fa-check-circle"></i> Mark Paid
+                          </button>
+                      @endif
+                  </div>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Weight:</span>
-                <span class="detail-value">{{ $order->weight }} kg</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Payment Method:</span>
-                <span class="detail-value">{{ $order->payment_method }}</span>
-              </div>
-            </div>
-            
-            <div class="order-amount">${{ number_format($order->amount, 2) }}</div>
-            
-            <div class="detail-row">
-              <span>
-                Status: 
-                <span class="order-status status-{{ strtolower(str_replace(' ', '-', $order->status)) }}">
-                  {{ $order->status }}
-                </span>
-              </span>
-              <span>
-                Payment: 
-                <span class="payment-status payment-{{ $order->payment_status ?? 'pending' }}">
-                  {{ $order->payment_status ?? 'Pending' }}
-                </span>
-              </span>
-            </div>
-            
-            <select class="status-select" data-order-id="{{ $order->id }}" onchange="updateOrderStatus(this)">
-              <option value="Pending" {{ $order->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-              <option value="Washing" {{ $order->status == 'Washing' ? 'selected' : '' }}>Washing</option>
-              <option value="Drying" {{ $order->status == 'Drying' ? 'selected' : '' }}>Drying</option>
-              <option value="Ironing" {{ $order->status == 'Ironing' ? 'selected' : '' }}>Ironing</option>
-              <option value="Ready" {{ $order->status == 'Ready' ? 'selected' : '' }}>Ready for Pickup</option>
-              <option value="Completed" {{ $order->status == 'Completed' ? 'selected' : '' }}>Completed</option>
-            </select>
-            
-            <div class="order-actions">
-              <button class="btn-action btn-view" onclick="viewOrderDetails({{ $order->id }})">
-                <i class="fas fa-eye"></i> View
-              </button>
-              @if($order->status == 'Completed' && ($order->payment_status ?? 'pending') == 'paid')
-                <button class="btn-action btn-archive" onclick="archiveOrder({{ $order->id }})">
-                  <i class="fas fa-archive"></i> Archive
-                </button>
-              @else
-                <button class="btn-action btn-mark-paid" onclick="markAsPaid({{ $order->id }})" 
-                  {{ ($order->payment_status ?? 'pending') == 'paid' ? 'disabled' : '' }}>
-                  <i class="fas fa-check-circle"></i> Mark Paid
-                </button>
-              @endif
-            </div>
-          </div>
-        @endforeach
+          @endforeach
       </div>
 
       <div class="mt-5">
@@ -530,83 +533,87 @@
   <script>
   function viewOrderDetails(orderId) {
     $.ajax({
-      url: '/orders/' + orderId,
-      method: 'GET',
-      success: function(data) {
-        $('#modalOrderId').text(data.id);
-        const statusLogs = Array.isArray(data.status_logs) ? data.status_logs : [];
-        const formattedDate = data.date ? new Date(data.date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }) : 'N/A';
-        $('#orderDetailsContent').html(`
-          <div class="row">
-            <div class="col-md-6">
-              <p><strong>Customer Name:</strong> ${data.order_name || 'N/A'}</p>
-              <p><strong>Order Date:</strong> ${formattedDate}</p>
-              <p><strong>Weight:</strong> ${data.weight ? data.weight + ' kg' : 'N/A'}</p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Status:</strong> 
-                <span class="order-status status-${data.status ? data.status.toLowerCase().replace(' ', '-') : 'unknown'}">
-                  ${data.status || 'Unknown'}
-                </span>
-              </p>
-              <p><strong>Payment:</strong> 
-                <span class="payment-status payment-${data.payment_status || 'pending'}">
-                  ${data.payment_status || 'Pending'}
-                </span>
-              </p>
-              <p><strong>Amount:</strong> $${data.amount ? parseFloat(data.amount).toFixed(2) : '0.00'}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <p><strong>Service Type:</strong> ${data.service_type && Array.isArray(data.service_type) && data.service_type.length > 0 ? data.service_type.join(', ') : 'N/A'}</p>
-              <p><strong>Payment Method:</strong> ${data.payment_method || 'N/A'}</p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Special Instructions:</strong> ${data.special_instructions || 'None'}</p>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-12">
-              <h5>Status History</h5>
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Changed At</th>
-                    <th>Changed By</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${statusLogs.length > 0 ? statusLogs.map(log => `
-                    <tr>
-                      <td>${log.status || 'N/A'}</td>
-                      <td>${log.changed_at ? new Date(log.changed_at).toLocaleString() : 'N/A'}</td>
-                      <td>${log.user && log.user.name ? log.user.name : 'N/A'}</td>
-                    </tr>
-                  `).join('') : `
-                    <tr>
-                      <td colspan="3">No status history available</td>
-                    </tr>
-                  `}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `);
-        $('#orderDetailsModal').modal('show');
-      },
-      error: function(xhr) {
-        console.error('Error fetching order details:', xhr.responseJSON);
-        let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Failed to load order details.';
-        alert('Error: ' + errorMessage);
-      }
+        url: '/orders/' + orderId,
+        method: 'GET',
+        success: function(data) {
+            $('#modalOrderId').text(data.id);
+            const statusLogs = Array.isArray(data.status_logs) ? data.status_logs : [];
+            const formattedDate = data.date ? new Date(data.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) : 'N/A';
+            const employees = Array.isArray(data.employees) && data.employees.length > 0
+                ? data.employees.map(emp => `${emp.first_name} ${emp.last_name} (${emp.position || 'N/A'})`).join(', ')
+                : 'None';
+            $('#orderDetailsContent').html(`
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Customer Name:</strong> ${data.order_name || 'N/A'}</p>
+                        <p><strong>Order Date:</strong> ${formattedDate}</p>
+                        <p><strong>Weight:</strong> ${data.weight ? data.weight + ' kg' : 'N/A'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> 
+                            <span class="order-status status-${data.status ? data.status.toLowerCase().replace(' ', '-') : 'unknown'}">
+                                ${data.status || 'Unknown'}
+                            </span>
+                        </p>
+                        <p><strong>Payment:</strong> 
+                            <span class="payment-status payment-${data.payment_status || 'pending'}">
+                                ${data.payment_status || 'Pending'}
+                            </span>
+                        </p>
+                        <p><strong>Amount:</strong> $${data.amount ? parseFloat(data.amount).toFixed(2) : '0.00'}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <p><strong>Service Type:</strong> ${data.service_type && Array.isArray(data.service_type) && data.service_type.length > 0 ? data.service_type.join(', ') : 'N/A'}</p>
+                        <p><strong>Payment Method:</strong> ${data.payment_method || 'N/A'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Special Instructions:</strong> ${data.special_instructions || 'None'}</p>
+                        <p><strong>Assigned Employees:</strong> ${employees}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h5>Status History</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Changed At</th>
+                                    <th>Changed By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${statusLogs.length > 0 ? statusLogs.map(log => `
+                                    <tr>
+                                        <td>${log.status || 'N/A'}</td>
+                                        <td>${log.changed_at ? new Date(log.changed_at).toLocaleString() : 'N/A'}</td>
+                                        <td>${log.user && log.user.name ? log.user.name : 'N/A'}</td>
+                                    </tr>
+                                `).join('') : `
+                                    <tr>
+                                        <td colspan="3">No status history available</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `);
+            $('#orderDetailsModal').modal('show');
+        },
+        error: function(xhr) {
+            console.error('Error fetching order details:', xhr.responseJSON);
+            let errorMessage = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Failed to load order details.';
+            alert('Error: ' + errorMessage);
+        }
     });
-  }
+}
 
   function updateOrderStatus(selectElement) {
     const orderId = selectElement.dataset.orderId;

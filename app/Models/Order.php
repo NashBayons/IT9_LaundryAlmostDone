@@ -34,6 +34,11 @@ class Order extends Model
         return $this->hasMany(OrderStatusLog::class);
     }
 
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class, 'employee_assignments', 'order_id', 'employee_id');
+    }
+
     // Method to update status and log the change
     public function updateStatus(string $newStatus, ?int $userId = null)
     {

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Employee;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -116,11 +117,32 @@ class OrderController extends Controller
     public function show($id)
     {
         try {
-            $order = Order::with('statusLogs.user')->findOrFail($id);
+            $order = Order::with('statusLogs.user', 'employees')->findOrFail($id);
             return response()->json($order);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to retrieve order: ' . $e->getMessage()], 404);
         }
+    }
+
+    public function showAssignForm($id)
+    {
+        $order = Order::findOrFail($id);
+        $employees = Employee::where('status', 'active')->get();
+        return view('orders.assign', compact('order', 'employees'));
+    }
+
+    // New method: Assign employees to order
+    public function assignEmployees(Request $request, $id)
+    {
+        $request->validate([
+            'employee_ids' => 'required|array',
+            'employee_ids.*' => 'exists:employees,id',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->employees()->sync($request->employee_ids);
+
+        return redirect()->route('orders.index')->with('success', 'Employees assigned successfully.');
     }
 
     protected function generateReceiptContent(Order $order)
