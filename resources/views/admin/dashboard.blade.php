@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="header">Admin Dashboard</div>
+   <div class="header">Admin Dashboard</div>
 
     <div class="dashboard">
         <div class="top-nav">
@@ -19,12 +19,9 @@
                 <a href="{{ route('admin.employee.index') }}">Employee Assignment</a>
                 <a href="{{ route('admin.sales_report.index') }}">Sales Report</a>
                 <a href="{{ route('admin.inventory.index') }}">Inventory</a>
-                
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="logout-btn">
-                        Logout
-                    </button>
+                    <button type="submit" class="logout-btn">Logout</button>
                 </form>
             </div>
         </div>
@@ -35,17 +32,16 @@
             <!-- Filter Interface -->
             <div class="filter-container">
                 <label for="timePeriod">Select Time Period:</label>
-                <select id="timePeriod" name="timePeriod">
+                <select id="timePeriod" name="timePeriod" class="time-period-select">
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly" selected>Monthly</option>
                     <option value="yearly">Yearly</option>
                 </select>
-                <!-- Date picker for specific date/week/month/year -->
-                <input type="date" id="dateFilter" style="display: none;">
-                <input type="week" id="weekFilter" style="display: none;">
-                <input type="month" id="monthFilter">
-                <input type="number" id="yearFilter" min="2000" max="2099" style="display: none;">
+                <input type="date" id="dateFilter" style="display: none;" class="filter-input">
+                <input type="week" id="weekFilter" style="display: none;" class="filter-input">
+                <input type="month" id="monthFilter" class="filter-input">
+                <input type="number" id="yearFilter" min="2000" max="2099" style="display: none;" class="filter-input">
                 <button id="applyFilter" class="btn">Apply Filter</button>
             </div>
 
@@ -87,7 +83,8 @@
                 </div>
             </div>
 
-            <div class="charts-container">
+            <!-- Charts Section - Moved to top -->
+            <div class="charts-container mb-4">
                 <div class="chart-container">
                     <h3 class="chart-title">Sales Distribution</h3>
                     <canvas id="pieChart"></canvas>
@@ -96,6 +93,116 @@
                     <h3 class="chart-title">Sales Trends</h3>
                     <canvas id="lineChart"></canvas>
                 </div>
+            </div>
+
+            <!-- Price Management Section - Moved to bottom -->
+            <div class="price-management">
+                <div class="price-management-header">
+                    <h4>Manage Service Prices</h4>
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+                
+                <form method="POST" action="{{ route('admin.prices.update') }}">
+                    @csrf
+                    @method('PUT')
+                    
+                    <!-- Wash Service -->
+                    <div class="form-group">
+                        <h5 class="service-title">Wash Service</h5>
+                        
+                        <div class="form-row">
+                            <label for="wash_price">Base Price (₱)</label>
+                            <input id="wash_price" type="number" step="0.01" min="0" name="wash_price" 
+                                value="{{ old('wash_price', $servicePrices['Wash']->base_price) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="wash_limit">Weight Limit (kg)</label>
+                            <input id="wash_limit" type="number" step="0.1" min="0" name="wash_limit" 
+                                value="{{ old('wash_limit', $servicePrices['Wash']->weight_limit) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="wash_extra">Extra Rate (₱/kg)</label>
+                            <input id="wash_extra" type="number" step="0.01" min="0" name="wash_extra" 
+                                value="{{ old('wash_extra', $servicePrices['Wash']->extra_rate) }}" 
+                                class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Fold Service -->
+                    <div class="form-group">
+                        <h5 class="service-title">Fold Service</h5>
+                        
+                        <div class="form-row">
+                            <label for="fold_price">Base Price (₱)</label>
+                            <input id="fold_price" type="number" step="0.01" min="0" name="fold_price" 
+                                value="{{ old('fold_price', $servicePrices['Fold']->base_price) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="fold_limit">Weight Limit (kg)</label>
+                            <input id="fold_limit" type="number" step="0.1" min="0" name="fold_limit" 
+                                value="{{ old('fold_limit', $servicePrices['Fold']->weight_limit) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="fold_extra">Extra Rate (₱/kg)</label>
+                            <input id="fold_extra" type="number" step="0.01" min="0" name="fold_extra" 
+                                value="{{ old('fold_extra', $servicePrices['Fold']->extra_rate) }}" 
+                                class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Ironing Service -->
+                    <div class="form-group">
+                        <h5 class="service-title">Ironing Service</h5>
+                        
+                        <div class="form-row">
+                            <label for="ironing_price">Base Price (₱)</label>
+                            <input id="ironing_price" type="number" step="0.01" min="0" name="ironing_price" 
+                                value="{{ old('ironing_price', $servicePrices['Ironing']->base_price) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="ironing_limit">Weight Limit (kg)</label>
+                            <input id="ironing_limit" type="number" step="0.1" min="0" name="ironing_limit" 
+                                value="{{ old('ironing_limit', $servicePrices['Ironing']->weight_limit) }}" 
+                                class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="ironing_extra">Extra Rate (₱/kg)</label>
+                            <input id="ironing_extra" type="number" step="0.01" min="0" name="ironing_extra" 
+                                value="{{ old('ironing_extra', $servicePrices['Ironing']->extra_rate) }}" 
+                                class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="submit" class="btn btn-primary">
+                            Update Prices
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -211,24 +318,40 @@
             background-color: rgba(255, 45, 32, 0.3);
         }
 
+        /* Improved Filter Styles */
         .filter-container {
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .filter-container select, .filter-container input, .filter-container button {
-            padding: 8px;
+        .filter-container label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        .time-period-select, .filter-input {
+            padding: 8px 12px;
             border-radius: 5px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            min-width: 120px;
+        }
+
+        .time-period-select option {
+            background-color: rgba(28, 56, 86, 0.9);
             color: white;
         }
 
         .filter-container button {
             background-color: rgba(23, 232, 255, 0.2);
             border: 1px solid rgba(23, 232, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -237,48 +360,187 @@
             background-color: rgba(23, 232, 255, 0.3);
         }
 
+        /* Summary Cards */
         .summary .card {
             margin-bottom: 20px;
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
+            border: none;
+        }
+
+        .summary .card-body {
+            padding: 15px;
         }
 
         .summary .card-body h5 {
             font-size: 1rem;
             font-weight: bold;
             color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
         }
 
         .summary .card-body p {
             font-size: 1.2rem;
             color: #17e8ff;
+            margin-bottom: 0;
         }
 
         .row {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            margin: 0 -10px;
         }
 
         .col-md-3 {
             flex: 1;
             min-width: 200px;
+            padding: 0 10px;
+        }
+
+        /* Price Management Section */
+        .price-management {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-management-header {
+            margin-bottom: 20px;
+        }
+
+        .price-management h4 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .service-title {
+            color: #17e8ff;
+            font-size: 1.2rem;
+            margin: 20px 0 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            margin-bottom: 15px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: rgba(23, 232, 255, 0.5);
+            box-shadow: 0 0 5px rgba(23, 232, 255, 0.3);
+            outline: none;
+        }
+
+        .form-submit {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .btn-primary {
+            background-color: rgba(23, 232, 255, 0.3);
+            border: 1px solid rgba(23, 232, 255, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: rgba(23, 232, 255, 0.4);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .alert-danger ul {
+            margin: 5px 0 0;
+            padding-left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav-links {
+                width: 100%;
+                flex-wrap: wrap;
+                margin-top: 10px;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .col-md-3 {
+                min-width: 100%;
+            }
+            
+            .price-management {
+                padding: 15px;
+            }
         }
     </style>
 
     <script>
+        /* Existing JavaScript remains unchanged */
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize charts
             let pieChart, lineChart;
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             const lineCtx = document.getElementById('lineChart').getContext('2d');
 
-            // Initial sales data from sales report
             const initialTotals = {
-                Wash: {{ $totals['Wash'] }},
-                Fold: {{ $totals['Fold'] }},
-                Ironing: {{ $totals['Ironing'] }},
-                All: {{ $totals['All'] }}
+                Wash: parseFloat({{ $totals['Wash'] }}),
+                Fold: parseFloat({{ $totals['Fold'] }}),
+                Ironing: parseFloat({{ $totals['Ironing'] }}),
+                All: parseFloat({{ $totals['All'] }})
             };
 
             const orders = [
@@ -287,23 +549,20 @@
                     id: {{ $order->id }},
                     order_name: '{{ $order->order_name }}',
                     date: '{{ $order->date }}',
-                    service_type: @json((array)$order->service_type),
+                    service_type: {!! json_encode((array)$order->service_type) !!},
                     status: '{{ $order->status }}',
-                    amount: {{ $order->amount }}
+                    amount: parseFloat({{ $order->amount }})
                 },
                 @endforeach
             ];
 
-            // Function to update charts and summary
             function updateDashboard(totals, filteredOrders, period, filterValue) {
-                // Update summary cards
                 document.getElementById('washTotal').textContent = `$${totals.Wash.toFixed(2)}`;
                 document.getElementById('foldTotal').textContent = `$${totals.Fold.toFixed(2)}`;
                 document.getElementById('ironingTotal').textContent = `$${totals.Ironing.toFixed(2)}`;
                 document.getElementById('allTotal').textContent = `$${totals.All.toFixed(2)}`;
 
-                // Update pie chart (service distribution)
-                if (pieChartIrc) {
+                if (pieChart) {
                     pieChart.destroy();
                 }
                 pieChart = new Chart(pieCtx, {
@@ -333,17 +592,26 @@
                                 labels: {
                                     color: 'white'
                                 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
                 });
 
-                // Prepare line chart data based on period
                 let labels = [];
                 let salesData = [];
 
                 if (period === 'daily') {
-                    // Group by hour
                     const hours = Array(24).fill(0).map((_, i) => i.toString().padStart(2, '0') + ':00');
                     salesData = Array(24).fill(0);
                     filteredOrders.forEach(order => {
@@ -353,16 +621,14 @@
                     });
                     labels = hours;
                 } else if (period === 'weekly') {
-                    // Group by day of week
                     labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                     salesData = Array(7).fill(0);
                     filteredOrders.forEach(order => {
                         const date = new Date(order.date);
-                        const day = date.getDay() === 0 ? 6 : date.getDay() - 1; // Adjust to Mon-Sun
+                        const day = date.getDay() === 0 ? 6 : date.getDay() - 1;
                         salesData[day] += order.amount;
                     });
                 } else if (period === 'monthly') {
-                    // Group by day of month
                     const daysInMonth = new Date(filterValue.split('-')[0], filterValue.split('-')[1], 0).getDate();
                     labels = Array(daysInMonth).fill(0).map((_, i) => (i + 1).toString());
                     salesData = Array(daysInMonth).fill(0);
@@ -372,7 +638,6 @@
                         salesData[day] += order.amount;
                     });
                 } else if (period === 'yearly') {
-                    // Group by month
                     labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     salesData = Array(12).fill(0);
                     filteredOrders.forEach(order => {
@@ -382,7 +647,6 @@
                     });
                 }
 
-                // Update line chart
                 if (lineChart) {
                     lineChart.destroy();
                 }
@@ -435,7 +699,6 @@
                 });
             }
 
-            // Filter logic
             const timePeriodSelect = document.getElementById('timePeriod');
             const dateFilter = document.getElementById('dateFilter');
             const weekFilter = document.getElementById('weekFilter');
@@ -443,7 +706,6 @@
             const yearFilter = document.getElementById('yearFilter');
             const applyFilterBtn = document.getElementById('applyFilter');
 
-            // Show/hide filter inputs based on period
             timePeriodSelect.addEventListener('change', function() {
                 const period = this.value;
                 dateFilter.style.display = period === 'daily' ? 'inline' : 'none';
@@ -452,7 +714,10 @@
                 yearFilter.style.display = period === 'yearly' ? 'inline' : 'none';
             });
 
-            // Apply filter
+            const today = new Date();
+            const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+            monthFilter.value = currentMonth;
+
             applyFilterBtn.addEventListener('click', function() {
                 const period = timePeriodSelect.value;
                 let filterValue;
@@ -467,7 +732,6 @@
                     filterValue = yearFilter.value;
                 }
 
-                // Filter orders and calculate totals
                 let filteredOrders = orders;
                 const totals = { Wash: 0, Fold: 0, Ironing: 0, All: 0 };
 
@@ -490,10 +754,10 @@
                         } else if (period === 'yearly') {
                             return orderDate.getFullYear() == filterValue;
                         }
+                        return true;
                     });
                 }
 
-                // Calculate totals for filtered orders
                 filteredOrders.forEach(order => {
                     totals.All += order.amount;
                     order.service_type.forEach(service => {
@@ -503,12 +767,10 @@
                     });
                 });
 
-                // Update dashboard with filtered data
                 updateDashboard(totals, filteredOrders, period, filterValue);
             });
 
-            // Initial render (default to monthly)
-            updateDashboard(initialTotals, orders, 'monthly', '{{ date('Y-m') }}');
+            updateDashboard(initialTotals, orders, 'monthly', currentMonth);
         });
     </script>
 </body>

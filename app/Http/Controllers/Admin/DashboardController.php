@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ServicePrice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -21,19 +23,55 @@ class DashboardController extends Controller
             $endDate = Carbon::parse($request->end_date);
         }
 
-        // Get filtered orders
-        $orders = Order::whereBetween('date', [$startDate, $endDate])->get();
+        // Get filtered orders (without the undefined 'services' relationship)
+        $orders = Order::whereBetween('created_at', [$startDate, $endDate])->get();
 
         // Calculate totals
-        $totals = $this->calculateTotals($orders);
-
-        // Prepare chart data
-        $chartData = [
-            'pieChart' => $this->getPieChartData($orders),
-            'lineChart' => $this->getLineChartData($startDate, $endDate)
+        $totals = [
+            'Wash' => $this->calculateServiceTotal($orders, 'Wash'),
+            'Fold' => $this->calculateServiceTotal($orders, 'Fold'),
+            'Ironing' => $this->calculateServiceTotal($orders, 'Ironing'),
+            'All' => $orders->sum('amount'),
         ];
 
-        return view('admin.dashboard', compact('orders', 'totals', 'chartData', 'startDate', 'endDate'));
+        // Get service prices
+        $servicePrices = [
+            'Wash' => ServicePrice::firstOrCreate(
+                ['service_name' => 'Wash'],
+                ['base_price' => 50, 'weight_limit' => 5, 'extra_rate' => 60]
+            ),
+            'Fold' => ServicePrice::firstOrCreate(
+                ['service_name' => 'Fold'],
+                ['base_price' => 30, 'weight_limit' => 7, 'extra_rate' => 40]
+            ),
+            'Ironing' => ServicePrice::firstOrCreate(
+                ['service_name' => 'Ironing'],
+                ['base_price' => 40, 'weight_limit' => 6, 'extra_rate' => 50]
+            )
+        ];
+
+        return view('admin.dashboard', [
+            'orders' => $orders,
+            'totals' => $totals,
+            'chartData' => [
+                'pieChart' => $this->getPieChartData($orders),
+                'lineChart' => $this->getLineChartData($startDate, $endDate)
+            ],
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'servicePrices' => $servicePrices
+        ]);
+    }
+
+    protected function calculateServiceTotal($orders, $serviceType)
+    {
+        return $orders->filter(function ($order) use ($serviceType) {
+            // Handle both array service_type and string service_type
+            if (is_array($order->service_type)) {
+                return in_array($serviceType, $order->service_type);
+            }
+            return $order->service_type === $serviceType;
+        })->sum('amount');
     }
 
     protected function calculateTotals($orders)

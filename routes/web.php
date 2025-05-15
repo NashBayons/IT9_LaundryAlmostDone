@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Admin\SalesReportController;
+use App\Http\Controllers\Admin\ServicePriceController;
 use App\Http\Controllers\Employee\Supplier_Controller;
 use App\Http\Controllers\Inventory\ReceiveOrderController;
 use App\Http\Controllers\Employee\Items_Controller;  // Added this line
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
 });
 
+     Route::get('/api/service-prices', [TransactionController::class, 'getServicePrices'])->name('api.service-prices');
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->group( function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 });
@@ -88,7 +91,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             'update' => 'admin.inventory.update',
             'destroy' => 'admin.inventory.destroy',
         ]);    
-
+    
+    Route::put('/prices/update', [TransactionController::class, 'updatePrices'])
+        ->name('admin.prices.update');
+    Route::prefix('service-prices')->name('service-prices.')->group(function() {
+        Route::get('/', [ServicePriceController::class, 'index'])->name('index');
+        Route::get('/json', [ServicePriceController::class, 'getJson'])->name('json');
+        });
     Route::prefix('sales_report')->name('admin.sales_report.')->group(function () {
     Route::get('/', [SalesReportController::class, 'index'])->name('index');
     Route::post('/generate', [SalesReportController::class, 'generate'])->name('generate');

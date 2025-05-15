@@ -1,9 +1,14 @@
+@extends('layouts.employee-layout')
+
+@section('title', 'Transactions')
+
+@section('content')
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Responsive Order and Transaction</title>
+  <title>Create Transaction</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -21,86 +26,14 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    .order-transaction {
-      background: linear-gradient(
-          137.15deg,
-          rgba(23, 232, 255, 0) 0%,
-          rgba(23, 232, 255, 0.2) 100%
-        ),
-        linear-gradient(to left, rgba(7, 156, 214, 0.2), rgba(7, 156, 214, 0.2)),
-        linear-gradient(
-          119.69deg,
-          rgba(93, 141, 230, 0) 0%,
-          rgba(142, 176, 239, 0.1) 45.691317319869995%,
-          rgba(36, 89, 188, 0.2) 96.88477516174316%
-        ),
-        linear-gradient(to left, rgba(47, 53, 109, 0.2), rgba(47, 53, 109, 0.2));
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-    }
-    
-    .sidebar {
-      background: rgba(217, 217, 217, 0.7);
-      width: 250px;
-      padding: 30px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-    
-    .sidebar img {
-      width: 100%;
-      max-width: 150px;
-      margin-bottom: 30px;
-    }
-    
-    .sidebar .nav-link {
-      color: var(--secondary-color);
-      font-size: 1.1rem;
-      margin: 12px 0;
-      font-weight: 500;
-      text-align: center;
-      padding: 8px 15px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .sidebar .nav-link:hover {
-      background: rgba(7, 156, 214, 0.2);
-      color: var(--primary-color);
-    }
-    
-    .sidebar .nav-link.active {
-      background: var(--primary-color);
-      color: white;
-    }
-    
-    .sidebar .log-out {
-      margin-top: auto;
-      font-size: 1.1rem;
-      color: var(--secondary-color);
-      font-weight: 500;
-      cursor: pointer;
-      padding: 8px 15px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .sidebar .log-out:hover {
-      background: rgba(255,0,0,0.1);
-      color: #d9534f;
-    }
-    
     .main-content {
       flex: 1;
       padding: 30px;
       overflow-y: auto;
       background: var(--light-bg);
-      border-radius: 15px 0 0 15px;
+      border-radius: 15px;
       box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      margin: 20px;
     }
     
     .order-and-transaction {
@@ -183,7 +116,6 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
-    /* Service Type Card */
     .service-card {
       background: white;
       border-radius: 12px;
@@ -296,7 +228,6 @@
     .payment-option .fa-money-bill-wave { color: #17a2b8; }
     .payment-option .fa-mobile-alt { color: #6f42c1; }
     
-    /* Special Instructions */
     .special-instructions {
       margin-top: 20px;
     }
@@ -316,7 +247,6 @@
       box-shadow: 0 0 0 0.2rem rgba(7, 156, 214, 0.25);
     }
     
-    /* Amount Display */
     .amount-display {
       background: white;
       border-radius: 12px;
@@ -341,7 +271,6 @@
       color: var(--primary-color);
     }
     
-    /* Modal Styles */
     .modal-header {
       border-bottom: none;
       padding-bottom: 0;
@@ -377,38 +306,6 @@
     }
     
     @media (max-width: 768px) {
-      .order-transaction {
-        flex-direction: column;
-      }
-      
-      .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        padding: 15px;
-      }
-      
-      .sidebar img {
-        margin-bottom: 15px;
-        max-width: 120px;
-      }
-      
-      .sidebar .nav-link {
-        margin: 5px 10px;
-        padding: 6px 12px;
-      }
-      
-      .sidebar .log-out {
-        margin-top: 0;
-        margin-left: auto;
-      }
-      
-      .main-content {
-        border-radius: 0;
-      }
-      
       .service-options {
         grid-template-columns: 1fr;
       }
@@ -416,280 +313,327 @@
   </style>
 </head>
 <body>
-  <div class="order-transaction">
-    <div class="sidebar">
-      <img src="{{ asset('img/1ds-removebg-preview.png') }}" alt="Company Logo">
-      <nav class="nav flex-column">
-        <a class="nav-link active" href="{{ route('transactions.index') }}">Order/Transaction</a>
-        <a class="nav-link" href="{{ route('orders.index') }}">View Laundry</a>
-      </nav>
-      <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit" class="log-out">Loging Out</button>
-    </form>
-    </div>
+<div class="order-transaction">
     <div class="main-content">
-      <div class="order-and-transaction">Order and Transaction</div>
-      
-      <form action="{{ route('orders.store') }}" method="POST" class="form-container">
-        @csrf 
+        <div class="order-and-transaction">Create New Transaction</div>
         
-        <div class="form-group">
-          <label for="orderName">Customer Name</label>
-          <input type="text" class="form-control" id="orderName" name="order_name" placeholder="Enter customer name" required>
+        @if($errors->any())
+        <div class="alert alert-danger">
+            <h5>Please fix these errors:</h5>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
-        
-        <div class="form-group">
-          <label for="weight">Laundry Weight</label>
-          <div class="input-group">
-            <input type="number" class="form-control" id="weight" name="weight" placeholder="Enter weight" required step="0.01" min="0.1" value="1">
-            <div class="input-group-append">
-              <span class="input-group-text">kg</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="date">Order Date</label>
-          <input type="date" class="form-control" id="date" name="date" required>
-        </div>
-        
-        <!-- Service Type Card -->
-        <div class="service-card">
-          <div class="service-card-title">
-            <i class="fas fa-concierge-bell"></i> Service Type
-          </div>
-          <div class="service-options">
-            <div class="service-option" onclick="toggleService(this, 'Wash')">
-              <i class="fas fa-tshirt service-icon"></i>
-              <div class="service-name">Wash</div>
-              <div class="service-price">$5/kg</div>
-              <input type="checkbox" id="wash" name="service_type[]" value="Wash" checked hidden>
-            </div>
-            
-            <div class="service-option" onclick="toggleService(this, 'Fold')">
-              <i class="fas fa-people-arrows service-icon"></i>
-              <div class="service-name">Fold</div>
-              <div class="service-price">$2/kg</div>
-              <input type="checkbox" id="fold" name="service_type[]" value="Fold" hidden>
-            </div>
-            
-            <div class="service-option" onclick="toggleService(this, 'Ironing')">
-              <i class="fas fa-iron service-icon"></i>
-              <div class="service-name">Ironing</div>
-              <div class="service-price">$3/kg</div>
-              <input type="checkbox" id="ironing" name="service_type[]" value="Ironing" hidden>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Payment Method Card -->
-        <div class="payment-method-card">
-          <div class="service-card-title">
-            <i class="fas fa-credit-card"></i> Payment Method
-          </div>
-          <div class="payment-options">
-            <div class="payment-option selected" onclick="selectPayment(this, 'Card')">
-              <i class="fab fa-cc-visa"></i>
-              <span>Card</span>
-              <input type="radio" name="payment_method" value="Card" checked hidden>
-            </div>
-            
-            <div class="payment-option" onclick="selectPayment(this, 'Cash')">
-              <i class="fas fa-money-bill-wave"></i>
-              <span>Cash</span>
-              <input type="radio" name="payment_method" value="Cash" hidden>
-            </div>
-            
-            <div class="payment-option" onclick="selectPayment(this, 'Mobile')">
-              <i class="fas fa-mobile-alt"></i>
-              <span>Mobile</span>
-              <input type="radio" name="payment_method" value="Mobile" hidden>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Amount Display -->
-        <div class="amount-display">
-          <div class="amount-label">Total Amount:</div>
-          <div class="amount-value">$<span id="amount">0.00</span></div>
-          <input type="hidden" id="amountInput" name="amount">
-        </div>
-        
-        <!-- Special Instructions -->
-        <div class="form-group special-instructions">
-          <label for="specialInstructions">Special Instructions</label>
-          <textarea class="form-control" id="specialInstructions" name="special_instructions" placeholder="Any special instructions for your order..."></textarea>
-        </div>
-        
-        <div class="form-group">
-          <button type="submit" class="btn btn-submit">Submit Order</button>
-        </div>
-      </form>
-    </div>
-  </div>
+        @endif
 
-  <!-- Confirmation Modal -->
-  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <form action="{{ route('orders.store') }}" method="POST" class="form-container" id="orderForm">
+            @csrf
+            
+            <div class="form-group">
+                <label for="orderName">Customer Name</label>
+                <input type="text" class="form-control @error('order_name') is-invalid @enderror" 
+                       id="orderName" name="order_name" placeholder="Enter customer name" 
+                       value="{{ old('order_name') }}" required>
+                @error('order_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">Laundry Weight</label>
+                <div class="input-group">
+                    <input type="number" class="form-control @error('weight') is-invalid @enderror" 
+                           id="weight" name="weight" placeholder="Enter weight" 
+                           required step="0.01" min="0.1" value="{{ old('weight', 1) }}"
+                           oninput="calculateAmount()">
+                    <div class="input-group-append">
+                        <span class="input-group-text">kg</span>
+                    </div>
+                    @error('weight')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <small class="form-text text-muted">Prices increase for weights over base limits</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Order Date</label>
+                <input type="date" class="form-control @error('date') is-invalid @enderror" 
+                       id="date" name="date" required value="{{ old('date', date('Y-m-d')) }}">
+                @error('date')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <div class="service-card">
+                <div class="service-card-title">
+                    <i class="fas fa-concierge-bell"></i> Service Type
+                </div>
+                <div class="service-options">
+                    <div class="service-option selected" onclick="toggleService(this, 'Wash')" data-service="Wash">
+                        <i class="fas fa-tshirt service-icon"></i>
+                        <div class="service-name">Wash</div>
+                        <div class="service-price" id="wash-price">
+                            ₱{{ number_format($prices['Wash']->base_price ?? 50, 2) }}/kg (base)
+                        </div>
+                        <input type="checkbox" id="Wash" name="service_type[]" value="Wash" checked hidden>
+                    </div>
+                    
+                    <div class="service-option" onclick="toggleService(this, 'Fold')" data-service="Fold">
+                        <i class="fas fa-people-arrows service-icon"></i>
+                        <div class="service-name">Fold</div>
+                        <div class="service-price" id="fold-price">
+                            ₱{{ number_format($prices['Fold']->base_price ?? 30, 2) }}/kg (base)
+                        </div>
+                        <input type="checkbox" id="Fold" name="service_type[]" value="Fold" hidden>
+                    </div>
+                    
+                    <div class="service-option" onclick="toggleService(this, 'Ironing')" data-service="Ironing">
+                        <i class="fas fa-iron service-icon"></i>
+                        <div class="service-name">Ironing</div>
+                        <div class="service-price" id="ironing-price">
+                            ₱{{ number_format($prices['Ironing']->base_price ?? 40, 2) }}/kg (base)
+                        </div>
+                        <input type="checkbox" id="Ironing" name="service_type[]" value="Ironing" hidden>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payment-method-card">
+                <div class="service-card-title">
+                    <i class="fas fa-credit-card"></i> Payment Method
+                </div>
+                <div class="payment-options">
+                    <div class="payment-option selected" onclick="selectPayment(this, 'Card')">
+                        <i class="fab fa-cc-visa"></i>
+                        <span>Card</span>
+                        <input type="radio" name="payment_method" value="Card" checked hidden>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPayment(this, 'Cash')">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Cash</span>
+                        <input type="radio" name="payment_method" value="Cash" hidden>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPayment(this, 'Mobile')">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile</span>
+                        <input type="radio" name="payment_method" value="Mobile" hidden>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="amount-display">
+                <div class="amount-label">Total Amount:</div>
+                <div class="amount-value">₱<span id="amount">0.00</span></div>
+                <input type="hidden" id="amountInput" name="amount" value="0">
+            </div>
+            
+            <div class="form-group special-instructions">
+                <label for="specialInstructions">Special Instructions</label>
+                <textarea class="form-control" id="specialInstructions" name="special_instructions" 
+                          placeholder="Any special instructions for your order...">{{ old('special_instructions') }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="button" class="btn btn-submit" onclick="showConfirmation()">Create Transaction</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Transaction Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="mb-3"><i class="fas fa-info-circle text-primary mr-2"></i>Please review your transaction details:</h6>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Customer Name:</div>
+                    <div class="detail-value" id="orderNameDisplay"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Weight:</div>
+                    <div class="detail-value" id="weightDisplay"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Services:</div>
+                    <div class="detail-value" id="serviceTypeDisplay"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Payment Method:</div>
+                    <div class="detail-value" id="paymentMethodDisplay"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Special Instructions:</div>
+                    <div class="detail-value" id="specialInstructionsDisplay">None</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Total Amount:</div>
+                    <div class="detail-value font-weight-bold text-primary">₱<span id="amountDisplay"></span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Edit Transaction</button>
+                <button type="button" class="btn btn-primary" id="confirmTransactionBtn">
+                    <i class="fas fa-check mr-2"></i>Confirm Transaction
+                </button>
+            </div>
         </div>
-        <div class="modal-body">
-          <h6 class="mb-3"><i class="fas fa-info-circle text-primary mr-2"></i>Please review your order details:</h6>
-          
-          <div class="detail-item">
-            <div class="detail-label">Customer Name:</div>
-            <div class="detail-value" id="orderNameDisplay"></div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Weight:</div>
-            <div class="detail-value" id="weightDisplay"> kg</div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Order Date:</div>
-            <div class="detail-value" id="dateDisplay"></div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Services:</div>
-            <div class="detail-value" id="serviceTypeDisplay"></div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Payment Method:</div>
-            <div class="detail-value" id="paymentMethodDisplay"></div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Special Instructions:</div>
-            <div class="detail-value" id="specialInstructionsDisplay">None</div>
-          </div>
-          
-          <div class="detail-item">
-            <div class="detail-label">Total Amount:</div>
-            <div class="detail-value font-weight-bold text-primary">$<span id="amountDisplay"></span></div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Edit Order</button>
-          <button type="button" class="btn btn-primary" onclick="confirmOrder()">
-            <i class="fas fa-check mr-2"></i>Confirm Order
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
-  <script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
     const servicePrices = {
-      'Wash': 5,
-      'Fold': 2,
-      'Ironing': 3
+        Wash: {
+            base_price: {{ $prices['Wash']->base_price ?? 50 }},
+            weight_limit: {{ $prices['Wash']->weight_limit ?? 5 }},
+            extra_rate: {{ $prices['Wash']->extra_rate ?? 60 }}
+        },
+        Fold: {
+            base_price: {{ $prices['Fold']->base_price ?? 30 }},
+            weight_limit: {{ $prices['Fold']->weight_limit ?? 5 }},
+            extra_rate: {{ $prices['Fold']->extra_rate ?? 36 }}
+        },
+        Ironing: {
+            base_price: {{ $prices['Ironing']->base_price ?? 40 }},
+            weight_limit: {{ $prices['Ironing']->weight_limit ?? 5 }},
+            extra_rate: {{ $prices['Ironing']->extra_rate ?? 48 }}
+        }
     };
 
-    // Initialize date to today
-    document.addEventListener('DOMContentLoaded', function() {
-      const today = new Date();
-      const formattedDate = today.toISOString().substr(0, 10);
-      document.getElementById('date').value = formattedDate;
-      
-      calculateAmount();
-    });
-
-    // Calculate total amount based on weight and selected services
     function calculateAmount() {
-      const weight = parseFloat(document.getElementById('weight').value) || 0;
-      let totalAmount = 0;
-      
-      document.querySelectorAll('input[name="service_type[]"]:checked').forEach(checkbox => {
-        const service = checkbox.value;
-        totalAmount += weight * servicePrices[service];
-      });
-      
-      document.getElementById('amount').textContent = totalAmount.toFixed(2);
-      document.getElementById('amountInput').value = totalAmount.toFixed(2);
+        const weight = parseFloat(document.getElementById('weight').value) || 0;
+        let total = 0;
+        let serviceDetails = [];
+
+        document.querySelectorAll('input[name="service_type[]"]:checked').forEach(checkbox => {
+            const service = checkbox.value;
+            const serviceCost = calculateServiceCost(service, weight);
+            total += serviceCost;
+            serviceDetails.push(`${service}: ₱${serviceCost.toFixed(2)}`);
+        });
+
+        const formattedTotal = total.toFixed(2);
+        document.getElementById('amount').textContent = formattedTotal;
+        document.getElementById('amountInput').value = formattedTotal;
+        document.getElementById('amountDisplay').textContent = formattedTotal;
+        document.getElementById('serviceTypeDisplay').textContent = serviceDetails.join(', ') || 'None';
     }
 
-    // Toggle service selection
+    function calculateServiceCost(service, weight) {
+            const serviceData = servicePrices[service];
+            return weight * serviceData.base_price;
+        }
+
     function toggleService(element, service) {
-      const checkbox = element.querySelector('input[type="checkbox"]');
-      checkbox.checked = !checkbox.checked;
-      
-      if (checkbox.checked) {
-        element.classList.add('selected');
-      } else {
-        element.classList.remove('selected');
-      }
-      
-      calculateAmount();
+        const checkbox = document.getElementById(service);
+        checkbox.checked = !checkbox.checked;
+        element.classList.toggle('selected');
+        calculateAmount();
     }
 
-    // Select payment method
     function selectPayment(element, method) {
-      document.querySelectorAll('.payment-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
-      
-      element.classList.add('selected');
-      document.querySelector(`input[value="${method}"]`).checked = true;
+        document.querySelectorAll('.payment-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        document.querySelector(`input[value="${method}"]`).checked = true;
     }
 
-    // Weight input listener
-    document.getElementById('weight').addEventListener('input', calculateAmount);
+    function generateReceipt() {
+        const orderName = document.getElementById('orderName').value;
+        const weight = document.getElementById('weight').value;
+        const services = Array.from(document.querySelectorAll('input[name="service_type[]"]:checked'))
+                            .map(el => el.value).join(', ');
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        const amount = document.getElementById('amount').textContent;
+        const instructions = document.getElementById('specialInstructions').value || 'None';
+        const date = new Date().toLocaleString();
 
-    // Form submission handler
-    document.querySelector('form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Get form values
-      const orderName = document.getElementById('orderName').value;
-      const weight = document.getElementById('weight').value;
-      const date = document.getElementById('date').value;
-      const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-      const amount = document.getElementById('amount').textContent;
-      const specialInstructions = document.getElementById('specialInstructions').value;
-      
-      // Get selected services
-      const selectedServices = Array.from(document.querySelectorAll('input[name="service_type[]"]:checked'))
-        .map(cb => {
-          return cb.parentElement.querySelector('.service-name').textContent;
-        }).join(', ');
+        return `LAUNDRY SERVICE RECEIPT\n` +
+               `==========================\n` +
+               `Customer: ${orderName}\n` +
+               `Date: ${date}\n` +
+               `Weight: ${weight} kg\n` +
+               `Services: ${services}\n` +
+               `Payment Method: ${paymentMethod}\n` +
+               `Total Amount: ₱${amount}\n` +
+               `Special Instructions: ${instructions}\n` +
+               `==========================\n` +
+               `Thank you for your business!`;
+    }
 
-      // Update modal display
-      document.getElementById('orderNameDisplay').textContent = orderName;
-      document.getElementById('weightDisplay').textContent = weight + ' kg';
-      document.getElementById('dateDisplay').textContent = date;
-      document.getElementById('serviceTypeDisplay').textContent = selectedServices || 'None';
-      document.getElementById('paymentMethodDisplay').textContent = paymentMethod;
-      document.getElementById('amountDisplay').textContent = amount;
-      document.getElementById('specialInstructionsDisplay').textContent = specialInstructions || 'None';
-      
-      // Show modal
-      $('#confirmationModal').modal('show');
+    function downloadReceipt(content) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `receipt_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function showConfirmation() {
+        const checkedServices = document.querySelectorAll('input[name="service_type[]"]:checked');
+        
+        if (checkedServices.length === 0) {
+            alert('Please select at least one service');
+            return;
+        }
+        
+        if (!document.getElementById('orderForm').checkValidity()) {
+            document.getElementById('orderForm').reportValidity();
+            return;
+        }
+        
+        // Update modal display
+        document.getElementById('orderNameDisplay').textContent = document.getElementById('orderName').value;
+        document.getElementById('weightDisplay').textContent = document.getElementById('weight').value + ' kg';
+        document.getElementById('paymentMethodDisplay').textContent = 
+            document.querySelector('input[name="payment_method"]:checked').value;
+        
+        const specialInstructions = document.getElementById('specialInstructions').value;
+        document.getElementById('specialInstructionsDisplay').textContent = specialInstructions || 'None';
+        
+        $('#confirmationModal').modal('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateAmount();
+        
+        document.getElementById('confirmTransactionBtn').addEventListener('click', function() {
+            // Generate and download receipt
+            const receiptContent = generateReceipt();
+            downloadReceipt(receiptContent);
+            
+            // Submit the form
+            $('#confirmationModal').modal('hide');
+            setTimeout(() => {
+                document.getElementById('orderForm').submit();
+            }, 500);
+        });
     });
-
-    // Confirm order
-    function confirmOrder() {
-      document.querySelector('form').submit();
-    }
-
-    // Logout function
-    function logout() {
-      if (confirm('Are you sure you want to log out?')) {
-        window.location.href = "{{ route('logout') }}";
-      }
-    }
-  </script>
-</body>
-</html>
+</script>
+@endsection

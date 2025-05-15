@@ -6,12 +6,12 @@
   <title>@yield('title', 'Dashboard')</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .view-order-status-customer {
       background: linear-gradient(
@@ -43,22 +43,39 @@
     .sidebar img {
       width: 100%;
       max-width: 150px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     .sidebar .nav-link {
       color: #000000;
-      font-size: 1.2rem;
-      margin: 10px 0;
-      text-align: center;
+      font-size: 1rem;
+      margin: 8px 0;
+      text-align: left;
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
     }
-    .sidebar .log-out {
-      margin-top: auto;
-      font-size: 1.2rem;
-      color: #ffffff;
+    .sidebar .nav-link:hover {
+      background-color: rgba(7, 156, 214, 0.1);
+    }
+    .sidebar .nav-link.active {
+      background-color: #079CD6;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
     }
     .main-content {
       flex: 1;
       padding: 20px;
+      overflow-y: auto;
+      height: 100vh;
     }
   </style>
   @stack('styles')
@@ -66,26 +83,61 @@
 <body>
   <div class="view-order-status-customer">
     <div class="sidebar">
-      <img src="{{ asset('img/1ds-removebg-preview.png') }}" alt="Image">
+      <img src="{{ asset('img/1ds-removebg-preview.png') }}" alt="Company Logo">
       <nav class="nav flex-column">
-        <a class="nav-link" href="{{ route('transactions.index') }}">Order/ Transaction</a>
-        <a class="nav-link" href="{{ route('orders.index') }}">View Laundry</a>
-        <a class="nav-link" href="{{ route('employee.supplier.index') }}">Supplier</a>
-        <a class="nav-link" href="{{ route('employee.items.index') }}">Items</a>
-        <a class="nav-link" href="{{ route('employee.stock_in_index') }}">Stock In</a>
-        <a class="nav-link" href="{{ route('employee.stock_out_index') }}">Stock Out</a>
-        <a class="nav-link" href="{{ route('employee.receive-orders.index') }}">Recieve Order</a>
+        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="nav-link {{ request()->routeIs('transactions.index') ? 'active' : '' }}" href="{{ route('transactions.index') }}">
+          <i class="fas fa-receipt"></i> Order/Transaction
+        </a>
+        <a class="nav-link {{ request()->routeIs('orders.index') ? 'active' : '' }}" href="{{ route('orders.index') }}">
+          <i class="fas fa-eye"></i> View Laundry
+        </a>
+        <a class="nav-link {{ request()->routeIs('employee.supplier.index') ? 'active' : '' }}" href="{{ route('employee.supplier.index') }}">
+          <i class="fas fa-truck"></i> Supplier
+        </a>
+        <a class="nav-link {{ request()->routeIs('employee.items.index') ? 'active' : '' }}" href="{{ route('employee.items.index') }}">
+          <i class="fas fa-boxes"></i> Items
+        </a>
+        <a class="nav-link {{ request()->routeIs('employee.stock_in_index') ? 'active' : '' }}" href="{{ route('employee.stock_in_index') }}">
+          <i class="fas fa-arrow-down"></i> Stock In
+        </a>
+        <a class="nav-link {{ request()->routeIs('employee.stock_out_index') ? 'active' : '' }}" href="{{ route('employee.stock_out_index') }}">
+          <i class="fas fa-arrow-up"></i> Stock Out
+        </a>
+        <a class="nav-link {{ request()->routeIs('employee.receive-orders.index') ? 'active' : '' }}" href="{{ route('employee.receive-orders.index') }}">
+          <i class="fas fa-clipboard-check"></i> Receive Order
+        </a>
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <a class="nav-link" href="{{ route('logout') }}"
+             onclick="event.preventDefault(); this.closest('form').submit();">
+            <i class="fas fa-sign-out-alt"></i> Log Out
+          </a>
+        </form>
       </nav>
-      <div class="log-out">Log Out</div>
     </div>
     <div class="main-content">
       @yield('content')
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Add active class to current route
+    $(document).ready(function() {
+      const currentRoute = "{{ request()->path() }}";
+      $('.nav-link').each(function() {
+        const linkRoute = $(this).attr('href').split('/').filter(Boolean).join('/');
+        if (currentRoute.includes(linkRoute)) {
+          $(this).addClass('active');
+        }
+      });
+    });
+  </script>
   @stack('scripts')
 </body>
 </html>

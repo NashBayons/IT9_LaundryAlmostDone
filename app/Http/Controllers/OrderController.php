@@ -10,17 +10,25 @@ use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+        
         $activeOrders = Order::where('is_archived', false)
-                           ->orderBy('created_at', 'desc')
-                           ->get();
+            ->when($search, function($query) use ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('id', 'like', "%$search%")
+                      ->orWhere('order_name', 'like', "%$search%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(6);  // Changed from get() to paginate()
                            
         $archivedOrders = Order::where('is_archived', true)
-                             ->orderBy('updated_at', 'desc')
-                             ->get();
+            ->orderBy('updated_at', 'desc')
+            ->get();
                              
-        return view('orders.index', compact('activeOrders', 'archivedOrders'));
+        return view('orders.index', compact('activeOrders', 'archivedOrders', 'search'));
     }
 
     public function store(Request $request)
