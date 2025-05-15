@@ -7,24 +7,22 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SupplierController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\ServicePriceController;
 use App\Http\Controllers\Employee\Supplier_Controller;
 use App\Http\Controllers\Inventory\ReceiveOrderController;
-use App\Http\Controllers\Employee\Items_Controller;  // Added this line
+use App\Http\Controllers\Employee\Items_Controller;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
 Route::middleware('auth')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -54,7 +52,7 @@ Route::middleware('auth')->group(function () {
      Route::get('/api/service-prices', [TransactionController::class, 'getServicePrices'])->name('api.service-prices');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group( function() {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
@@ -98,6 +96,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/', [ServicePriceController::class, 'index'])->name('index');
         Route::get('/json', [ServicePriceController::class, 'getJson'])->name('json');
         });
+
     Route::prefix('sales_report')->name('admin.sales_report.')->group(function () {
     Route::get('/', [SalesReportController::class, 'index'])->name('index');
     Route::post('/generate', [SalesReportController::class, 'generate'])->name('generate');

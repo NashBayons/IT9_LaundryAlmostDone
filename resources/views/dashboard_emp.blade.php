@@ -1,14 +1,32 @@
-@extends('layouts.app')
+@extends('layouts.employee-layout')
 
 @section('content')
+
 <div class="dashboard-container" id="dashboardContainer">
     <div class="bubbles" id="bubblesContainer"></div>
 
     <div class="content-wrapper">
         <div class="text-content">
-            <h1>"Laundry Lessons: Finding Clean Moments in the Chaos"</h1>
-            <p>Dirty laundry can be overwhelming, but it's a reminder that even messes can be cleaned. Each load brings us closer to a fresh start.</p>
-            <a href="{{ route('orders.index') }}" class="get-started" id="getStartedBtn">Get started!</a>
+            <h1>Cashier Dashboard</h1>
+            
+            <!-- Order Status Summary Cards -->
+            <div class="status-summary">
+                <div class="status-card pending">
+                    <div class="status-count">{{ $pendingCount }}</div>
+                    <div class="status-label">Pending Orders</div>
+                </div>
+                <div class="status-card washing">
+                    <div class="status-count">{{ $washingCount }}</div>
+                    <div class="status-label">In Washing</div>
+                </div>
+                <div class="status-card ready">
+                    <div class="status-count">{{ $readyCount }}</div>
+                    <div class="status-label">Ready for Pickup</div>
+                </div>
+            </div>
+            
+            <p>Manage your laundry orders efficiently. Track order statuses and update them as work progresses.</p>
+            <a href="{{ route('orders.index') }}" class="get-started" id="getStartedBtn">View All Orders</a>
         </div>
 
         <div class="image-content">
@@ -204,6 +222,54 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /* Status Summary Cards */
+    .status-summary {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .status-card {
+        flex: 1;
+        min-width: 120px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .status-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .status-count {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .status-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .status-card.pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-left: 4px solid #ffc107;
+    }
+
+    .status-card.washing {
+        background-color: rgba(0, 123, 255, 0.2);
+        border-left: 4px solid #007bff;
+    }
+
+    .status-card.ready {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-left: 4px solid #28a745;
+    }
+
     @media (max-width: 768px) {
         .content-wrapper {
             flex-direction: column;
@@ -216,6 +282,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .image-content {
             margin-top: 30px;
+        }
+
+        .status-summary {
+            justify-content: center;
+        }
+
+        .status-card {
+            min-width: 100px;
         }
     }
 </style>

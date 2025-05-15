@@ -506,18 +506,12 @@
     const servicePrices = {
         Wash: {
             base_price: {{ $prices['Wash']->base_price ?? 50 }},
-            weight_limit: {{ $prices['Wash']->weight_limit ?? 5 }},
-            extra_rate: {{ $prices['Wash']->extra_rate ?? 60 }}
         },
         Fold: {
             base_price: {{ $prices['Fold']->base_price ?? 30 }},
-            weight_limit: {{ $prices['Fold']->weight_limit ?? 5 }},
-            extra_rate: {{ $prices['Fold']->extra_rate ?? 36 }}
         },
         Ironing: {
             base_price: {{ $prices['Ironing']->base_price ?? 40 }},
-            weight_limit: {{ $prices['Ironing']->weight_limit ?? 5 }},
-            extra_rate: {{ $prices['Ironing']->extra_rate ?? 48 }}
         }
     };
 

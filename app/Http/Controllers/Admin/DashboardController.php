@@ -35,20 +35,16 @@ class DashboardController extends Controller
         ];
 
         // Get service prices
+        $prices = ServicePrice::all()->keyBy('service_name')->map(function ($price) {
+            return (object)['base_price' => $price->base_price];
+        })->toArray();
+
         $servicePrices = [
-            'Wash' => ServicePrice::firstOrCreate(
-                ['service_name' => 'Wash'],
-                ['base_price' => 50, 'weight_limit' => 5, 'extra_rate' => 60]
-            ),
-            'Fold' => ServicePrice::firstOrCreate(
-                ['service_name' => 'Fold'],
-                ['base_price' => 30, 'weight_limit' => 7, 'extra_rate' => 40]
-            ),
-            'Ironing' => ServicePrice::firstOrCreate(
-                ['service_name' => 'Ironing'],
-                ['base_price' => 40, 'weight_limit' => 6, 'extra_rate' => 50]
-            )
+            'Wash' => (object)['base_price' => $prices['Wash']->base_price ?? 10],
+            'Fold' => (object)['base_price' => $prices['Fold']->base_price ?? 6],
+            'Ironing' => (object)['base_price' => $prices['Ironing']->base_price ?? 8],
         ];
+        
 
         return view('admin.dashboard', [
             'orders' => $orders,

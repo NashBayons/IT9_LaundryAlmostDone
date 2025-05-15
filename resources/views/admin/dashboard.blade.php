@@ -95,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- Price Management Section - Moved to bottom -->
             <div class="price-management">
                 <div class="price-management-header">
                     <h4>Manage Service Prices</h4>
@@ -122,25 +121,10 @@
                     <!-- Wash Service -->
                     <div class="form-group">
                         <h5 class="service-title">Wash Service</h5>
-                        
                         <div class="form-row">
-                            <label for="wash_price">Base Price (₱)</label>
-                            <input id="wash_price" type="number" step="0.01" min="0" name="wash_price" 
-                                value="{{ old('wash_price', $servicePrices['Wash']->base_price) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="wash_limit">Weight Limit (kg)</label>
-                            <input id="wash_limit" type="number" step="0.1" min="0" name="wash_limit" 
-                                value="{{ old('wash_limit', $servicePrices['Wash']->weight_limit) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="wash_extra">Extra Rate (₱/kg)</label>
-                            <input id="wash_extra" type="number" step="0.01" min="0" name="wash_extra" 
-                                value="{{ old('wash_extra', $servicePrices['Wash']->extra_rate) }}" 
+                            <label for="wash_base_price">Price per Kilogram (₱/kg)</label>
+                            <input id="wash_base_price" type="number" step="0.01" min="0" name="wash_base_price" 
+                                value="{{ old('wash_base_price', $servicePrices['Wash']->base_price) }}" 
                                 class="form-control" required>
                         </div>
                     </div>
@@ -148,25 +132,10 @@
                     <!-- Fold Service -->
                     <div class="form-group">
                         <h5 class="service-title">Fold Service</h5>
-                        
                         <div class="form-row">
-                            <label for="fold_price">Base Price (₱)</label>
-                            <input id="fold_price" type="number" step="0.01" min="0" name="fold_price" 
-                                value="{{ old('fold_price', $servicePrices['Fold']->base_price) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="fold_limit">Weight Limit (kg)</label>
-                            <input id="fold_limit" type="number" step="0.1" min="0" name="fold_limit" 
-                                value="{{ old('fold_limit', $servicePrices['Fold']->weight_limit) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="fold_extra">Extra Rate (₱/kg)</label>
-                            <input id="fold_extra" type="number" step="0.01" min="0" name="fold_extra" 
-                                value="{{ old('fold_extra', $servicePrices['Fold']->extra_rate) }}" 
+                            <label for="fold_base_price">Price per Kilogram (₱/kg)</label>
+                            <input id="fold_base_price" type="number" step="0.01" min="0" name="fold_base_price" 
+                                value="{{ old('fold_base_price', $servicePrices['Fold']->base_price) }}" 
                                 class="form-control" required>
                         </div>
                     </div>
@@ -174,25 +143,10 @@
                     <!-- Ironing Service -->
                     <div class="form-group">
                         <h5 class="service-title">Ironing Service</h5>
-                        
                         <div class="form-row">
-                            <label for="ironing_price">Base Price (₱)</label>
-                            <input id="ironing_price" type="number" step="0.01" min="0" name="ironing_price" 
-                                value="{{ old('ironing_price', $servicePrices['Ironing']->base_price) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="ironing_limit">Weight Limit (kg)</label>
-                            <input id="ironing_limit" type="number" step="0.1" min="0" name="ironing_limit" 
-                                value="{{ old('ironing_limit', $servicePrices['Ironing']->weight_limit) }}" 
-                                class="form-control" required>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="ironing_extra">Extra Rate (₱/kg)</label>
-                            <input id="ironing_extra" type="number" step="0.01" min="0" name="ironing_extra" 
-                                value="{{ old('ironing_extra', $servicePrices['Ironing']->extra_rate) }}" 
+                            <label for="ironing_base_price">Price per Kilogram (₱/kg)</label>
+                            <input id="ironing_base_price" type="number" step="0.01" min="0" name="ironing_base_price" 
+                                value="{{ old('ironing_base_price', $servicePrices['Ironing']->base_price) }}" 
                                 class="form-control" required>
                         </div>
                     </div>

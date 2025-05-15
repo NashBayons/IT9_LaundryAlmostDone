@@ -81,15 +81,10 @@ class TransactionController extends Controller
     public function updatePrices(Request $request)
     {
         $validated = $request->validate([
-            'wash_price' => 'required|numeric|min:0',
-            'wash_limit' => 'required|numeric|min:0',
-            'wash_extra' => 'required|numeric|min:0',
-            'fold_price' => 'required|numeric|min:0',
-            'fold_limit' => 'required|numeric|min:0',
-            'fold_extra' => 'required|numeric|min:0',
-            'ironing_price' => 'required|numeric|min:0',
-            'ironing_limit' => 'required|numeric|min:0',
-            'ironing_extra' => 'required|numeric|min:0'
+            'wash_base_price' => 'required|numeric|min:0',
+            'fold_base_price' => 'required|numeric|min:0',
+            'ironing_base_price' => 'required|numeric|min:0',
+
         ]);
 
         DB::beginTransaction();
@@ -97,19 +92,13 @@ class TransactionController extends Controller
             // Update or create services
             $services = [
                 'Wash' => [
-                    'base_price' => $validated['wash_price'],
-                    'weight_limit' => $validated['wash_limit'],
-                    'extra_rate' => $validated['wash_extra']
+                    'base_price' => $validated['wash_base_price'],
                 ],
                 'Fold' => [
-                    'base_price' => $validated['fold_price'],
-                    'weight_limit' => $validated['fold_limit'],
-                    'extra_rate' => $validated['fold_extra']
+                    'base_price' => $validated['fold_base_price'],
                 ],
                 'Ironing' => [
-                    'base_price' => $validated['ironing_price'],
-                    'weight_limit' => $validated['ironing_limit'],
-                    'extra_rate' => $validated['ironing_extra']
+                    'base_price' => $validated['ironing_base_price'],
                 ]
             ];
 

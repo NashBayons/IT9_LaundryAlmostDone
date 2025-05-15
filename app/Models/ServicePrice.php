@@ -9,9 +9,7 @@ class ServicePrice extends Model
 {
     protected $fillable = [
         'service_name',
-        'base_price',
-        'weight_limit',
-        'extra_rate'
+        'base_price'
     ];
     
     // Optional: Constants for service names
